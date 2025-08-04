@@ -23,160 +23,160 @@
                         <div class="upload-icon">📤</div>
                         <p><strong>Click to upload</strong> or drag & drop</p>
                         <p style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">
-                            Supports JPG, PNG, GIF
+                            Supports JPG, PNG, GIF, HEIC
                         </p>
                     </div>
-                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                    <input type="file" id="imageInput" accept="image/*,.heic,.heif" style="display: none;">
                 </div>
 
-        <div class="sidebar-section">
-            <h3>2. Text Content</h3>
-            <div class="text-fields">
-                <div class="text-field-item">
-                    <div class="text-field-label">Line 1</div>
-                    <input type="text" id="titleLine1" placeholder="RADIO SHOW GOES HERE" maxlength="40">
-                </div>
-                <div class="text-field-item">
-                    <div class="text-field-label">Line 2</div>
-                    <input type="text" id="titleLine2" placeholder="FEAT. GUEST NAME" maxlength="40">
-                </div>
-        <div class="text-field-item">
-                    <div class="text-field-label">Date</div>
-                    <input type="date" id="dateInput">
-                </div>
-                <div class="text-field-item">
-                    <div class="text-field-label">Start Time</div>
-                    <select id="startTimeInput">
-                        <option value="">Select start time</option>
-                        <option value="00:00">00:00</option>
-                        <option value="00:30">00:30</option>
-                        <option value="01:00">01:00</option>
-                        <option value="01:30">01:30</option>
-                        <option value="02:00">02:00</option>
-                        <option value="02:30">02:30</option>
-                        <option value="03:00">03:00</option>
-                        <option value="03:30">03:30</option>
-                        <option value="04:00">04:00</option>
-                        <option value="04:30">04:30</option>
-                        <option value="05:00">05:00</option>
-                        <option value="05:30">05:30</option>
-                        <option value="06:00">06:00</option>
-                        <option value="06:30">06:30</option>
-                        <option value="07:00">07:00</option>
-                        <option value="07:30">07:30</option>
-                        <option value="08:00">08:00</option>
-                        <option value="08:30">08:30</option>
-                        <option value="09:00">09:00</option>
-                        <option value="09:30">09:30</option>
-                        <option value="10:00">10:00</option>
-                        <option value="10:30">10:30</option>
-                        <option value="11:00">11:00</option>
-                        <option value="11:30">11:30</option>
-                        <option value="12:00">12:00</option>
-                        <option value="12:30">12:30</option>
-                        <option value="13:00">13:00</option>
-                        <option value="13:30">13:30</option>
-                        <option value="14:00">14:00</option>
-                        <option value="14:30">14:30</option>
-                        <option value="15:00">15:00</option>
-                        <option value="15:30">15:30</option>
-                        <option value="16:00">16:00</option>
-                        <option value="16:30">16:30</option>
-                        <option value="17:00">17:00</option>
-                        <option value="17:30">17:30</option>
-                        <option value="18:00">18:00</option>
-                        <option value="18:30">18:30</option>
-                        <option value="19:00">19:00</option>
-                        <option value="19:30">19:30</option>
-                        <option value="20:00">20:00</option>
-                        <option value="20:30">20:30</option>
-                        <option value="21:00">21:00</option>
-                        <option value="21:30">21:30</option>
-                        <option value="22:00">22:00</option>
-                        <option value="22:30">22:30</option>
-                        <option value="23:00">23:00</option>
-                        <option value="23:30">23:30</option>
-                    </select>
-                </div>
-                <div class="text-field-item">
-                    <div class="text-field-label">End Time</div>
-                    <select id="endTimeInput">
-                        <option value="">Select end time</option>
-                        <option value="00:00">00:00</option>
-                        <option value="00:30">00:30</option>
-                        <option value="01:00">01:00</option>
-                        <option value="01:30">01:30</option>
-                        <option value="02:00">02:00</option>
-                        <option value="02:30">02:30</option>
-                        <option value="03:00">03:00</option>
-                        <option value="03:30">03:30</option>
-                        <option value="04:00">04:00</option>
-                        <option value="04:30">04:30</option>
-                        <option value="05:00">05:00</option>
-                        <option value="05:30">05:30</option>
-                        <option value="06:00">06:00</option>
-                        <option value="06:30">06:30</option>
-                        <option value="07:00">07:00</option>
-                        <option value="07:30">07:30</option>
-                        <option value="08:00">08:00</option>
-                        <option value="08:30">08:30</option>
-                        <option value="09:00">09:00</option>
-                        <option value="09:30">09:30</option>
-                        <option value="10:00">10:00</option>
-                        <option value="10:30">10:30</option>
-                        <option value="11:00">11:00</option>
-                        <option value="11:30">11:30</option>
-                        <option value="12:00">12:00</option>
-                        <option value="12:30">12:30</option>
-                        <option value="13:00">13:00</option>
-                        <option value="13:30">13:30</option>
-                        <option value="14:00">14:00</option>
-                        <option value="14:30">14:30</option>
-                        <option value="15:00">15:00</option>
-                        <option value="15:30">15:30</option>
-                        <option value="16:00">16:00</option>
-                        <option value="16:30">16:30</option>
-                        <option value="17:00">17:00</option>
-                        <option value="17:30">17:30</option>
-                        <option value="18:00">18:00</option>
-                        <option value="18:30">18:30</option>
-                        <option value="19:00">19:00</option>
-                        <option value="19:30">19:30</option>
-                        <option value="20:00">20:00</option>
-                        <option value="20:30">20:30</option>
-                        <option value="21:00">21:00</option>
-                        <option value="21:30">21:30</option>
-                        <option value="22:00">22:00</option>
-                        <option value="22:30">22:30</option>
-                        <option value="23:00">23:00</option>
-                        <option value="23:30">23:30</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        
                 <div class="sidebar-section">
-            <h3>3. Image Scaling</h3>
-            <div class="control-group scale-control">
-                <div class="size-controls">
-                    <div>
-                        <label>Image Scale</label>
-                        <input type="range" id="scaleSlider" min="50" max="200" value="100">
+                    <h3>2. Text Content</h3>
+                    <div class="text-fields">
+                        <div class="text-field-item">
+                            <div class="text-field-label">Line 1</div>
+                            <input type="text" id="titleLine1" placeholder="RADIO SHOW GOES HERE" maxlength="40">
+                        </div>
+                        <div class="text-field-item">
+                            <div class="text-field-label">Line 2</div>
+                            <input type="text" id="titleLine2" placeholder="FEAT. GUEST NAME" maxlength="40">
+                        </div>
+                        <div class="text-field-item">
+                            <div class="text-field-label">Date</div>
+                            <input type="date" id="dateInput">
+                        </div>
+                        <div class="text-field-item">
+                            <div class="text-field-label">Start Time</div>
+                            <select id="startTimeInput">
+                                <option value="">Select start time</option>
+                                <option value="00:00">00:00</option>
+                                <option value="00:30">00:30</option>
+                                <option value="01:00">01:00</option>
+                                <option value="01:30">01:30</option>
+                                <option value="02:00">02:00</option>
+                                <option value="02:30">02:30</option>
+                                <option value="03:00">03:00</option>
+                                <option value="03:30">03:30</option>
+                                <option value="04:00">04:00</option>
+                                <option value="04:30">04:30</option>
+                                <option value="05:00">05:00</option>
+                                <option value="05:30">05:30</option>
+                                <option value="06:00">06:00</option>
+                                <option value="06:30">06:30</option>
+                                <option value="07:00">07:00</option>
+                                <option value="07:30">07:30</option>
+                                <option value="08:00">08:00</option>
+                                <option value="08:30">08:30</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                                <option value="15:30">15:30</option>
+                                <option value="16:00">16:00</option>
+                                <option value="16:30">16:30</option>
+                                <option value="17:00">17:00</option>
+                                <option value="17:30">17:30</option>
+                                <option value="18:00">18:00</option>
+                                <option value="18:30">18:30</option>
+                                <option value="19:00">19:00</option>
+                                <option value="19:30">19:30</option>
+                                <option value="20:00">20:00</option>
+                                <option value="20:30">20:30</option>
+                                <option value="21:00">21:00</option>
+                                <option value="21:30">21:30</option>
+                                <option value="22:00">22:00</option>
+                                <option value="22:30">22:30</option>
+                                <option value="23:00">23:00</option>
+                                <option value="23:30">23:30</option>
+                            </select>
+                        </div>
+                        <div class="text-field-item">
+                            <div class="text-field-label">End Time</div>
+                            <select id="endTimeInput">
+                                <option value="">Select end time</option>
+                                <option value="00:00">00:00</option>
+                                <option value="00:30">00:30</option>
+                                <option value="01:00">01:00</option>
+                                <option value="01:30">01:30</option>
+                                <option value="02:00">02:00</option>
+                                <option value="02:30">02:30</option>
+                                <option value="03:00">03:00</option>
+                                <option value="03:30">03:30</option>
+                                <option value="04:00">04:00</option>
+                                <option value="04:30">04:30</option>
+                                <option value="05:00">05:00</option>
+                                <option value="05:30">05:30</option>
+                                <option value="06:00">06:00</option>
+                                <option value="06:30">06:30</option>
+                                <option value="07:00">07:00</option>
+                                <option value="07:30">07:30</option>
+                                <option value="08:00">08:00</option>
+                                <option value="08:30">08:30</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                                <option value="15:30">15:30</option>
+                                <option value="16:00">16:00</option>
+                                <option value="16:30">16:30</option>
+                                <option value="17:00">17:00</option>
+                                <option value="17:30">17:30</option>
+                                <option value="18:00">18:00</option>
+                                <option value="18:30">18:30</option>
+                                <option value="19:00">19:00</option>
+                                <option value="19:30">19:30</option>
+                                <option value="20:00">20:00</option>
+                                <option value="20:30">20:30</option>
+                                <option value="21:00">21:00</option>
+                                <option value="21:30">21:30</option>
+                                <option value="22:00">22:00</option>
+                                <option value="22:30">22:30</option>
+                                <option value="23:00">23:00</option>
+                                <option value="23:30">23:30</option>
+                            </select>
+                        </div>
                     </div>
-                    <span id="scaleValue">100%</span>
                 </div>
-            </div>
-        </div>
+                
+                <div class="sidebar-section">
+                    <h3>3. Image Scaling</h3>
+                    <div class="control-group scale-control">
+                        <div class="size-controls">
+                            <div>
+                                <label>Image Scale</label>
+                                <input type="range" id="scaleSlider" min="50" max="200" value="100">
+                            </div>
+                            <span id="scaleValue">100%</span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="sidebar-section">
-                    <h3>3. Gradient Overlay</h3>
+                    <h3>4. Gradient</h3>
                     <div class="control-group opacity-control">
                         <div class="size-controls">
                             <div>
                                 <label>Gradient Opacity</label>
-                                <input type="range" id="opacitySlider" min="0" max="100" value="80">
+                                <input type="range" id="opacitySlider" min="0" max="100" value="30">
                             </div>
-                            <span id="opacityValue">80%</span>
+                            <span id="opacityValue">30%</span>
                         </div>
                     </div>
                 </div>
