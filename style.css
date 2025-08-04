@@ -18,7 +18,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: #9a0d2f;  /* ← NEW SOLID COLOR */
+    background: linear-gradient(135deg, #ea6666 0%, #a24b4b 100%);
     min-height: 100vh;
     color: #333;
     overflow-x: hidden;
