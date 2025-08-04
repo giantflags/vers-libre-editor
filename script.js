@@ -431,6 +431,18 @@ class VersLibreEditor {
         
         this.canvasArea.appendChild(wrapper);
         
+        // Add persistent instruction text below canvas
+        const persistentInstruction = document.createElement('div');
+        persistentInstruction.style.cssText = `
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 12px;
+            font-weight: 500;
+        `;
+        persistentInstruction.textContent = 'Drag to reposition';
+        this.canvasArea.appendChild(persistentInstruction);
+        
         // Auto-hide instructions after 3 seconds
         setTimeout(() => {
             instructions.style.opacity = '0';
@@ -663,7 +675,7 @@ class VersLibreEditor {
 
         // 30pt font size
         const fontSize = '30pt';
-        
+
         // Fixed Y positions for bottom baseline of each line
         const line1Y = 1220;    // Line 1 bottom baseline at 1220px from top
         const line2Y = 1260;    // Line 2 bottom baseline at 1260px from top
