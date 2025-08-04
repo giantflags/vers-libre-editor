@@ -191,6 +191,12 @@ class VersLibreEditor {
         this.lastMouseX = pos.x;
         this.lastMouseY = pos.y;
         this.canvas.style.cursor = 'grabbing';
+        
+        // Show brief instructions when dragging starts
+        if (this.showBriefInstructions) {
+            this.showBriefInstructions();
+        }
+        
         e.preventDefault();
     }
 
@@ -227,6 +233,12 @@ class VersLibreEditor {
         this.isDragging = true;
         this.lastMouseX = (touch.clientX - rect.left) * scaleX;
         this.lastMouseY = (touch.clientY - rect.top) * scaleY;
+        
+        // Show brief instructions when touch dragging starts
+        if (this.showBriefInstructions) {
+            this.showBriefInstructions();
+        }
+        
         e.preventDefault();
     }
 
@@ -376,35 +388,119 @@ class VersLibreEditor {
 
         const wrapper = document.createElement('div');
         wrapper.className = 'canvas-wrapper';
-        wrapper.style.position = 'relative';
+        wrapper.style.cssText = `
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            display: inline-block;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 8px;
+            margin: 20px 0;
+        `;
         wrapper.appendChild(this.canvas);
         
         const overlay = document.createElement('div');
         overlay.className = 'canvas-overlay';
         wrapper.appendChild(overlay);
         
-        // Add positioning instructions (centered on canvas)
+        // Add auto-hiding positioning instructions with very translucent background
         const instructions = document.createElement('div');
+        instructions.className = 'positioning-instructions';
         instructions.style.cssText = `
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.2);
             color: white;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 500;
             pointer-events: none;
             z-index: 1000;
             white-space: nowrap;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+            backdrop-filter: blur(4px);
         `;
         instructions.textContent = 'Drag to reposition image';
         wrapper.appendChild(instructions);
         
         this.canvasArea.appendChild(wrapper);
+        
+        // Auto-hide instructions after 3 seconds
+        setTimeout(() => {
+            instructions.style.opacity = '0';
+            // Remove from DOM after fade out
+            setTimeout(() => {
+                if (instructions.parentNode) {
+                    instructions.parentNode.removeChild(instructions);
+                }
+            }, 500);
+        }, 3000);
+        
+        // Show instructions again when user starts dragging
+        this.setupInstructionReappearance(wrapper);
+        
         this.bindCanvasEvents();
+    }
+
+    // Method to show instructions briefly when user interacts
+    setupInstructionReappearance(wrapper) {
+        let instructionTimer = null;
+        
+        const showBriefInstructions = () => {
+            // Clear any existing timer
+            if (instructionTimer) {
+                clearTimeout(instructionTimer);
+            }
+            
+            // Remove any existing instruction
+            const existingInstructions = wrapper.querySelector('.positioning-instructions');
+            if (existingInstructions) {
+                existingInstructions.remove();
+            }
+            
+            // Create new brief instruction
+            const briefInstructions = document.createElement('div');
+            briefInstructions.className = 'positioning-instructions';
+            briefInstructions.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.15);
+                color: white;
+                padding: 6px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 500;
+                pointer-events: none;
+                z-index: 1000;
+                white-space: nowrap;
+                opacity: 1;
+                transition: opacity 0.3s ease-out;
+                backdrop-filter: blur(2px);
+            `;
+            briefInstructions.textContent = 'Repositioning...';
+            wrapper.appendChild(briefInstructions);
+            
+            // Hide after 1.5 seconds
+            instructionTimer = setTimeout(() => {
+                briefInstructions.style.opacity = '0';
+                setTimeout(() => {
+                    if (briefInstructions.parentNode) {
+                        briefInstructions.parentNode.removeChild(briefInstructions);
+                    }
+                }, 300);
+            }, 1500);
+        };
+        
+        // Store reference for use in mouse events
+        this.showBriefInstructions = showBriefInstructions;
     }
 
     updatePreview() {
@@ -559,98 +655,95 @@ class VersLibreEditor {
         this.ctx.fillText('LIBRE', textX, textY + fontSize * 0.3);
     }
 
-// Updated methods for proper 36pt text with leading
-
-// Updated methods for proper 36pt text with leading
-
-drawMainText() {
-    const titleLine1 = this.titleLine1.value.toUpperCase();
-    const titleLine2 = this.titleLine2.value.toUpperCase();
-    
-    if (!titleLine1 && !titleLine2) return;
-
-    // 30pt font size
-    const fontSize = '30pt';
-
-    // Fixed Y positions for bottom baseline of each line
-    const line1Y = 1220;    // Line 1 bottom baseline at 1220px from top
-    const line2Y = 1260;    // Line 2 bottom baseline at 1260px from top
-    const textX = 130;      // X position: 130px from left
-    
-    // Use regular weight font
-    this.ctx.font = `${fontSize} ${this.fontFamily}`;
-    this.ctx.textAlign = 'left';
-    this.ctx.textBaseline = 'bottom';
-    this.ctx.fillStyle = 'white';
-
-    console.log('Text positioning (bottom baseline):', { line1Y, line2Y, textX, fontSize });
-
-    // Draw lines at specified positions
-    if (titleLine1) {
-        this.ctx.fillText(titleLine1, textX, line1Y);
-    }
-    
-    if (titleLine2) {
-        this.ctx.fillText(titleLine2, textX, line2Y);
-    }
-}
-
-drawDateTime() {
-    let dateTimeText = '';
-    
-    // Check if using new separate date/start time/end time inputs
-    if (this.dateInput && this.startTimeInput && this.endTimeInput) {
-        const dateValue = this.dateInput.value ? this.dateInput.value.trim() : '';
-        const startTime = this.startTimeInput.value ? this.startTimeInput.value.trim() : '';
-        const endTime = this.endTimeInput.value ? this.endTimeInput.value.trim() : '';
+    drawMainText() {
+        const titleLine1 = this.titleLine1.value.toUpperCase();
+        const titleLine2 = this.titleLine2.value.toUpperCase();
         
-        // Format date from YYYY-MM-DD to DD.MM.YY
-        let dateText = '';
-        if (dateValue) {
-            const date = new Date(dateValue);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = String(date.getFullYear()).slice(-2);
-            dateText = `${day}.${month}.${year}`;
+        if (!titleLine1 && !titleLine2) return;
+
+        // 30pt font size
+        const fontSize = '30pt';
+        
+        // Fixed Y positions for bottom baseline of each line
+        const line1Y = 1220;    // Line 1 bottom baseline at 1220px from top
+        const line2Y = 1260;    // Line 2 bottom baseline at 1260px from top
+        const textX = 130;      // X position: 130px from left
+        
+        // Use regular weight font
+        this.ctx.font = `${fontSize} ${this.fontFamily}`;
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'bottom';
+        this.ctx.fillStyle = 'white';
+
+        console.log('Text positioning (bottom baseline):', { line1Y, line2Y, textX, fontSize });
+
+        // Draw lines at specified positions
+        if (titleLine1) {
+            this.ctx.fillText(titleLine1, textX, line1Y);
         }
         
-        if (dateText) {
-            dateTimeText = dateText;
-            if (startTime && endTime) {
-                dateTimeText += ` | ${startTime}-${endTime}`;
-            } else if (startTime) {
-                dateTimeText += ` | ${startTime}`;
+        if (titleLine2) {
+            this.ctx.fillText(titleLine2, textX, line2Y);
+        }
+    }
+
+    drawDateTime() {
+        let dateTimeText = '';
+        
+        // Check if using new separate date/start time/end time inputs
+        if (this.dateInput && this.startTimeInput && this.endTimeInput) {
+            const dateValue = this.dateInput.value ? this.dateInput.value.trim() : '';
+            const startTime = this.startTimeInput.value ? this.startTimeInput.value.trim() : '';
+            const endTime = this.endTimeInput.value ? this.endTimeInput.value.trim() : '';
+            
+            // Format date from YYYY-MM-DD to DD.MM.YY
+            let dateText = '';
+            if (dateValue) {
+                const date = new Date(dateValue);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = String(date.getFullYear()).slice(-2);
+                dateText = `${day}.${month}.${year}`;
             }
-        } else if (startTime && endTime) {
-            dateTimeText = `${startTime}-${endTime}`;
-        } else if (startTime) {
-            dateTimeText = startTime;
+            
+            if (dateText) {
+                dateTimeText = dateText;
+                if (startTime && endTime) {
+                    dateTimeText += ` | ${startTime}-${endTime}`;
+                } else if (startTime) {
+                    dateTimeText += ` | ${startTime}`;
+                }
+            } else if (startTime && endTime) {
+                dateTimeText = `${startTime}-${endTime}`;
+            } else if (startTime) {
+                dateTimeText = startTime;
+            }
         }
+        // Fallback to old combined input
+        else if (this.dateTime && this.dateTime.value) {
+            dateTimeText = this.dateTime.value.trim();
+        }
+        
+        if (!dateTimeText) return;
+
+        // 30pt font size
+        const fontSize = '30pt';
+
+        // Line 3 (date/time) bottom baseline position
+        const dateTimeY = 1300; // Bottom baseline at 1300px from top
+        const textX = 130;      // X position: 130px from left
+
+        // Use regular weight font for date/time
+        this.ctx.font = `${fontSize} ${this.fontFamily}`;
+        this.ctx.fillStyle = 'white';
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'bottom';
+
+        console.log('Date/time positioning:', { textX, dateTimeY, fontSize });
+
+        this.ctx.fillText(dateTimeText.toUpperCase(), textX, dateTimeY);
     }
-    // Fallback to old combined input
-    else if (this.dateTime && this.dateTime.value) {
-        dateTimeText = this.dateTime.value.trim();
-    }
-    
-    if (!dateTimeText) return;
 
-    // 30pt font size
-    const fontSize = '30pt';
-    
-    // Line 3 (date/time) bottom baseline position
-    const dateTimeY = 1300; // Bottom baseline at 1300px from top
-    const textX = 130;      // X position: 130px from left
-
-    // Use regular weight font for date/time
-    this.ctx.font = `${fontSize} ${this.fontFamily}`;
-    this.ctx.fillStyle = 'white';
-    this.ctx.textAlign = 'left';
-    this.ctx.textBaseline = 'bottom';
-
-    console.log('Date/time positioning:', { textX, dateTimeY, fontSize });
-
-    this.ctx.fillText(dateTimeText.toUpperCase(), textX, dateTimeY);
-}
     updateOpacityDisplay() {
         if (this.opacityValue) {
             this.opacityValue.textContent = this.opacitySlider.value + '%';
