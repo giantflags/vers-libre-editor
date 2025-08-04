@@ -434,9 +434,15 @@ createCanvas() {
     this.canvas.width = width;
     this.canvas.height = height;
     
-    // Display size maintaining perfect 4:5 ratio (1080:1350 = 400:500 scaled)
-    this.canvas.style.width = '400px';   // 4 units
-    this.canvas.style.height = '500px';  // 5 units (perfect 4:5 ratio)
+    // Responsive display size that maintains 4:5 ratio
+    const isMobile = window.innerWidth <= 768;
+    const displayWidth = isMobile ? Math.min(320, window.innerWidth - 40) : 400;
+    const displayHeight = displayWidth * 1.25; // 4:5 ratio = 1.25
+    
+    this.canvas.style.width = displayWidth + 'px';
+    this.canvas.style.height = displayHeight + 'px';
+    this.canvas.style.maxWidth = '100%';
+    this.canvas.style.height = 'auto';
 
     const wrapper = document.createElement('div');
     wrapper.className = 'canvas-wrapper';
@@ -447,6 +453,8 @@ createCanvas() {
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         padding: 8px;
         margin: 20px 0;
+        max-width: 100%;
+        box-sizing: border-box;
     `;
     wrapper.appendChild(this.canvas);
     
@@ -858,10 +866,55 @@ checkFontLoading() {
 downloadImage() {
     if (!this.canvas) return;
 
-    const link = document.createElement('a');
-    link.download = 'vers-libre-event.png';
-    link.href = this.canvas.toDataURL('image/png');
-    link.click();
+    try {
+        // Create download link
+        const link = document.createElement('a');
+        const dataURL = this.canvas.toDataURL('image/png', 1.0);
+        
+        // iOS Safari workaround - open in new window if direct download fails
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+        
+        if (isIOS || isSafari) {
+            // For iOS/Safari, open image in new window for manual save
+            const newWindow = window.open();
+            if (newWindow) {
+                newWindow.document.write(`
+                    <html>
+                        <head><title>Vers Libre Event Image</title></head>
+                        <body style="margin:0; padding:20px; text-align:center; background:#f5f5f5;">
+                            <h3>Your Event Image</h3>
+                            <p>Long press the image below and select "Save to Photos" or "Add to Photos"</p>
+                            <img src="${dataURL}" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2);" alt="Vers Libre Event">
+                            <br><br>
+                            <a href="${dataURL}" download="vers-libre-event.png" style="display:inline-block; padding:12px 24px; background:#B91B5C; color:white; text-decoration:none; border-radius:6px; margin:10px;">
+                                Download Image
+                            </a>
+                        </body>
+                    </html>
+                `);
+                newWindow.document.close();
+            } else {
+                // Fallback if popup blocked
+                link.href = dataURL;
+                link.download = 'vers-libre-event.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        } else {
+            // Standard download for desktop/Android
+            link.href = dataURL;
+            link.download = 'vers-libre-event.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+    } catch (error) {
+        console.error('Download failed:', error);
+        alert('Download failed. Please try again or check your browser settings.');
+    }
 }
 ```
 
