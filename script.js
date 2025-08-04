@@ -65,6 +65,11 @@ class VersLibreEditor {
         this.opacitySlider = document.getElementById('opacitySlider');
         this.opacityValue = document.getElementById('opacityValue');
         
+        // Set default gradient opacity to 30%
+        if (this.opacitySlider) {
+            this.opacitySlider.value = 30;
+        }
+        
         // Action buttons
         this.downloadBtn = document.getElementById('downloadBtn');
         
@@ -675,7 +680,7 @@ class VersLibreEditor {
 
         // 30pt font size
         const fontSize = '30pt';
-
+        
         // Fixed Y positions for bottom baseline of each line
         const line1Y = 1220;    // Line 1 bottom baseline at 1220px from top
         const line2Y = 1260;    // Line 2 bottom baseline at 1260px from top
@@ -740,7 +745,7 @@ class VersLibreEditor {
 
         // 30pt font size
         const fontSize = '30pt';
-
+        
         // Line 3 (date/time) bottom baseline position
         const dateTimeY = 1300; // Bottom baseline at 1300px from top
         const textX = 130;      // X position: 130px from left
