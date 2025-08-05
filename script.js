@@ -796,9 +796,9 @@ class VersLibreEditor {
             if (dateText) {
                 dateTimeText = dateText;
                 if (startTime && endTime) {
-                    dateTimeText += ` | ${startTime}-${endTime}`;
+                    dateTimeText += `｜${startTime}-${endTime}`;
                 } else if (startTime) {
-                    dateTimeText += ` | ${startTime}`;
+                    dateTimeText += `｜${startTime}`;
                 }
             } else if (startTime && endTime) {
                 dateTimeText = `${startTime}-${endTime}`;
