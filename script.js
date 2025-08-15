@@ -1,29 +1,49 @@
 class VersLibreEditor {
     constructor() {
-        console.log('VersLibreEditor constructor called');
         this.canvas = null;
         this.ctx = null;
         this.image = null;
         this.logoImage = null;
+        this.cleanupFunctions = [];
         
-        // Try different font fallbacks
+        // Constants
+        this.CANVAS_WIDTH = 1080;
+        this.CANVAS_HEIGHT = 1350;
+        this.LOGO_LEFT_PERCENT = 0.12;
+        this.LOGO_TOP_PERCENT = 0.05;
+        this.LOGO_WIDTH_PERCENT = 0.09;
+        this.TEXT_X = 130;
+        this.TEXT_LINE1_Y = 1220;
+        this.TEXT_LINE2_Y = 1260;
+        this.TEXT_DATETIME_Y = 1300;
+        this.FONT_SIZE = '30pt';
+        this.DATETIME_FONT_SIZE = '26pt'; // 4px smaller than main text
+        this.MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        
+        // Font configuration
         this.fontFamily = 'Radial Regular, "Radial-Regular", RadialRegular, Arial, sans-serif';
         
         // Image positioning and scaling
         this.imageOffsetX = 0;
         this.imageOffsetY = 0;
-        this.imageScale = 1.0; // Default scale
+        this.imageScale = 1.0;
         this.isDragging = false;
         this.lastMouseX = 0;
         this.lastMouseY = 0;
+        
+        // Mobile detection
+        this.isMobile = this.detectMobile();
         
         this.initializeElements();
         this.bindEvents();
         this.updateOpacityDisplay();
         this.updateScaleDisplay();
         this.loadLogo();
-        this.checkFontLoading();
-        console.log('VersLibreEditor initialization complete');
+        this.initializeFontLoading();
+    }
+
+    detectMobile() {
+        return window.innerWidth <= 768;
     }
 
     initializeElements() {
@@ -31,18 +51,8 @@ class VersLibreEditor {
         this.uploadArea = document.getElementById('uploadArea');
         this.imageInput = document.getElementById('imageInput');
         
-        // Debug: Check if elements are found
-        console.log('Looking for upload elements...');
-        console.log('uploadArea found:', !!this.uploadArea, this.uploadArea);
-        console.log('imageInput found:', !!this.imageInput, this.imageInput);
-        
-        if (!this.uploadArea) {
-            console.error('Upload area not found! Check if element with id="uploadArea" exists');
-            return;
-        }
-        if (!this.imageInput) {
-            console.error('Image input not found! Check if element with id="imageInput" exists');
-            return;
+        if (!this.uploadArea || !this.imageInput) {
+            throw new Error('Required elements not found');
         }
         
         // Canvas elements
@@ -77,7 +87,8 @@ class VersLibreEditor {
         // Action buttons
         this.downloadBtn = document.getElementById('downloadBtn');
         
-        console.log('All elements initialized successfully');
+        // Validation
+        this.validateElements();
     }
 
     loadLogo() {
@@ -97,41 +108,31 @@ class VersLibreEditor {
     }
 
     bindEvents() {
-        // Check if upload elements exist before binding events
         if (!this.uploadArea || !this.imageInput) {
-            console.error('Cannot bind upload events - elements not found');
-            console.log('uploadArea:', this.uploadArea);
-            console.log('imageInput:', this.imageInput);
-            return;
+            throw new Error('Cannot bind events - required elements not found');
         }
         
-        console.log('Binding upload events to:', this.uploadArea, this.imageInput);
+        // Image upload events
+        const clickHandler = () => this.imageInput.click();
+        const dragOverHandler = (e) => this.handleDragOver(e);
+        const dragLeaveHandler = (e) => this.handleDragLeave(e);
+        const dropHandler = (e) => this.handleImageDrop(e);
+        const changeHandler = (e) => this.handleImageUpload(e);
         
-        // Image upload events with debugging
-        this.uploadArea.addEventListener('click', (e) => {
-            console.log('Upload area clicked', e);
-            this.imageInput.click();
-        });
+        this.uploadArea.addEventListener('click', clickHandler);
+        this.uploadArea.addEventListener('dragover', dragOverHandler);
+        this.uploadArea.addEventListener('dragleave', dragLeaveHandler);
+        this.uploadArea.addEventListener('drop', dropHandler);
+        this.imageInput.addEventListener('change', changeHandler);
         
-        this.uploadArea.addEventListener('dragover', (e) => {
-            console.log('Drag over detected', e);
-            this.handleDragOver(e);
-        });
-        
-        this.uploadArea.addEventListener('dragleave', (e) => {
-            console.log('Drag leave detected', e);
-            this.handleDragLeave(e);
-        });
-        
-        this.uploadArea.addEventListener('drop', (e) => {
-            console.log('Drop detected', e);
-            this.handleImageDrop(e);
-        });
-        
-        this.imageInput.addEventListener('change', (e) => {
-            console.log('File input changed', e.target.files);
-            this.handleImageUpload(e);
-        });
+        // Store cleanup functions
+        this.cleanupFunctions.push(
+            () => this.uploadArea.removeEventListener('click', clickHandler),
+            () => this.uploadArea.removeEventListener('dragover', dragOverHandler),
+            () => this.uploadArea.removeEventListener('dragleave', dragLeaveHandler),
+            () => this.uploadArea.removeEventListener('drop', dropHandler),
+            () => this.imageInput.removeEventListener('change', changeHandler)
+        );
 
         // Text input events - support both old and new structure
         if (this.titleLine1) this.titleLine1.addEventListener('input', this.updatePreview.bind(this));
@@ -164,26 +165,48 @@ class VersLibreEditor {
         // Action buttons
         if (this.downloadBtn) this.downloadBtn.addEventListener('click', this.downloadImage.bind(this));
         
-        console.log('All events bound successfully');
+        // Events bound successfully
     }
 
     bindCanvasEvents() {
         if (!this.canvas) return;
 
+        // Create bound handlers for cleanup
+        const mouseDownHandler = this.handleMouseDown.bind(this);
+        const mouseMoveHandler = this.handleMouseMove.bind(this);
+        const mouseUpHandler = this.handleMouseUp.bind(this);
+        const touchStartHandler = this.handleTouchStart.bind(this);
+        const touchMoveHandler = this.handleTouchMove.bind(this);
+        const touchEndHandler = this.handleTouchEnd.bind(this);
+
         // Mouse events for image dragging
-        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        this.canvas.addEventListener('mouseleave', this.handleMouseUp.bind(this));
+        this.canvas.addEventListener('mousedown', mouseDownHandler);
+        this.canvas.addEventListener('mousemove', mouseMoveHandler);
+        this.canvas.addEventListener('mouseup', mouseUpHandler);
+        this.canvas.addEventListener('mouseleave', mouseUpHandler);
 
         // Touch events for mobile
-        this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this));
-        this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this));
-        this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this));
+        this.canvas.addEventListener('touchstart', touchStartHandler);
+        this.canvas.addEventListener('touchmove', touchMoveHandler);
+        this.canvas.addEventListener('touchend', touchEndHandler);
 
-        // Change cursor when hovering over image and show tooltip
+        // Accessibility
         this.canvas.style.cursor = 'grab';
-        this.canvas.title = 'Drag to reposition'; // Tooltip on hover
+        this.canvas.title = 'Drag to reposition';
+        this.canvas.setAttribute('role', 'img');
+        this.canvas.setAttribute('aria-label', 'Event image preview - drag to reposition');
+        this.canvas.setAttribute('tabindex', '0');
+
+        // Store cleanup functions
+        this.cleanupFunctions.push(
+            () => this.canvas.removeEventListener('mousedown', mouseDownHandler),
+            () => this.canvas.removeEventListener('mousemove', mouseMoveHandler),
+            () => this.canvas.removeEventListener('mouseup', mouseUpHandler),
+            () => this.canvas.removeEventListener('mouseleave', mouseUpHandler),
+            () => this.canvas.removeEventListener('touchstart', touchStartHandler),
+            () => this.canvas.removeEventListener('touchmove', touchMoveHandler),
+            () => this.canvas.removeEventListener('touchend', touchEndHandler)
+        );
     }
 
     getMousePos(e) {
@@ -206,7 +229,6 @@ class VersLibreEditor {
         this.lastMouseY = pos.y;
         this.canvas.style.cursor = 'grabbing';
         
-        // Show brief instructions when dragging starts
         if (this.showBriefInstructions) {
             this.showBriefInstructions();
         }
@@ -248,7 +270,6 @@ class VersLibreEditor {
         this.lastMouseX = (touch.clientX - rect.left) * scaleX;
         this.lastMouseY = (touch.clientY - rect.top) * scaleY;
         
-        // Show brief instructions when touch dragging starts
         if (this.showBriefInstructions) {
             this.showBriefInstructions();
         }
@@ -296,145 +317,234 @@ class VersLibreEditor {
         this.uploadArea.classList.remove('dragover');
     }
 
+    validateFile(file) {
+        if (!file) return { valid: false, error: 'No file provided' };
+        
+        if (file.size > this.MAX_FILE_SIZE) {
+            return { valid: false, error: 'File size too large (max 10MB)' };
+        }
+        
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const validExtensions = ['.heic', '.heif'];
+        const isValidType = validTypes.includes(file.type);
+        const isValidExtension = validExtensions.some(ext => 
+            file.name.toLowerCase().endsWith(ext)
+        );
+        
+        if (!isValidType && !isValidExtension) {
+            return { valid: false, error: 'Invalid file type. Supported: JPG, PNG, GIF, WEBP, HEIC' };
+        }
+        
+        return { valid: true };
+    }
+
     handleImageDrop(e) {
-        console.log('handleImageDrop called');
         e.preventDefault();
         e.stopPropagation();
         this.uploadArea.classList.remove('dragover');
         
         const files = e.dataTransfer.files;
-        console.log('Files dropped:', files.length);
         
         if (files.length > 0) {
             const file = files[0];
-            console.log('First file:', file.name, file.type);
+            const validation = this.validateFile(file);
             
-            if (file.type.startsWith('image/') || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
-                console.log('Valid image file, loading...');
+            if (validation.valid) {
                 this.loadImage(file);
             } else {
-                console.error('Invalid file type:', file.type);
-                alert('Please drop a valid image file (JPG, PNG, GIF, HEIC)');
+                this.showError(validation.error);
             }
         } else {
-            console.log('No files in drop event');
-            alert('Please drop a valid image file (JPG, PNG, GIF, HEIC)');
+            this.showError('Please drop a valid image file');
+        }
+    }
+
+    showError(message) {
+        // Create a more user-friendly error display
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'notification error-notification';
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-weight: 500;
+        `;
+        errorDiv.textContent = message;
+        document.body.appendChild(errorDiv);
+        
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.parentNode.removeChild(errorDiv);
+            }
+        }, 5000);
+    }
+
+    showProgressMessage(message) {
+        // Remove any existing progress message
+        this.hideProgressMessage();
+        
+        const progressDiv = document.createElement('div');
+        progressDiv.className = 'notification progress-notification';
+        progressDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        `;
+        
+        // Add a simple spinner
+        const spinner = document.createElement('div');
+        spinner.style.cssText = `
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        `;
+        
+        // Add CSS animation for spinner
+        if (!document.getElementById('spinner-styles')) {
+            const style = document.createElement('style');
+            style.id = 'spinner-styles';
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        progressDiv.appendChild(spinner);
+        progressDiv.appendChild(document.createTextNode(message));
+        document.body.appendChild(progressDiv);
+        
+        this.currentProgressMessage = progressDiv;
+    }
+
+    hideProgressMessage() {
+        if (this.currentProgressMessage && this.currentProgressMessage.parentNode) {
+            this.currentProgressMessage.parentNode.removeChild(this.currentProgressMessage);
+            this.currentProgressMessage = null;
         }
     }
 
     handleImageUpload(e) {
-        console.log('handleImageUpload called');
         const file = e.target.files[0];
         
-        if (!file) {
-            console.log('No file selected');
-            return;
-        }
+        if (!file) return;
         
-        console.log('File selected:', file.name, file.type, file.size);
+        const validation = this.validateFile(file);
         
-        if (file.type.startsWith('image/') || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
-            console.log('Valid image file, loading...');
+        if (validation.valid) {
             this.loadImage(file);
         } else {
-            console.error('Invalid file type:', file.type);
-            alert('Please select a valid image file (JPG, PNG, GIF, HEIC)');
+            this.showError(validation.error);
         }
     }
 
     loadImage(file) {
-        console.log('loadImage called with:', file.name);
-        
-        // Check if it's a HEIC file
-        const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
-        
-        if (isHeic) {
-            // Handle HEIC files with heic2any library
-            this.loadHeicImage(file);
-        } else {
-            // Handle regular image files
-            this.loadRegularImage(file);
+        try {
+            const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+            
+            if (isHeic) {
+                this.loadHeicImage(file);
+            } else {
+                this.loadRegularImage(file);
+            }
+        } catch (error) {
+            this.showError('Failed to load image: ' + error.message);
         }
     }
 
     loadHeicImage(file) {
-        console.log('Loading HEIC file:', file.name);
-        
-        // Check if heic2any is available
         if (typeof heic2any === 'undefined') {
-            console.error('heic2any library not loaded');
-            alert('HEIC support not available. Please convert to JPG/PNG first, or refresh the page to load HEIC support.');
+            this.showError('HEIC support library not loaded. Please refresh the page and try again.');
             return;
         }
 
-        // Convert HEIC to JPEG
+        // Show conversion progress
+        this.showProgressMessage('Converting HEIC file...');
+        
         heic2any({
             blob: file,
             toType: "image/jpeg",
             quality: 0.8
         }).then((convertedBlob) => {
-            console.log('HEIC conversion successful');
+            this.hideProgressMessage();
             
-            // Create a new file from the converted blob
             const convertedFile = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), {
                 type: 'image/jpeg'
             });
             
-            // Load the converted image
             this.loadRegularImage(convertedFile);
         }).catch((error) => {
-            console.error('HEIC conversion failed:', error);
-            alert('Failed to convert HEIC file. Please try converting to JPG/PNG first.');
+            this.hideProgressMessage();
+            this.showError('Failed to convert HEIC file: ' + error.message);
         });
     }
 
     loadRegularImage(file) {
-        console.log('Loading regular image file:', file.name);
         const reader = new FileReader();
         
         reader.onload = (e) => {
-            console.log('File reader loaded successfully');
             const img = new Image();
             img.onload = () => {
-                console.log('Image loaded successfully:', img.width, 'x', img.height);
                 this.image = img;
-                this.imageOffsetX = 0; // Reset position
-                this.imageOffsetY = 0;
-                this.imageScale = 1.0; // Reset scale
-                
-                // Reset scale slider if it exists
-                if (this.scaleSlider) {
-                    this.scaleSlider.value = 100;
-                    this.updateScaleDisplay();
-                }
-                
+                this.resetImageTransform();
                 this.createCanvas();
+                
                 if (this.downloadSection) {
                     this.downloadSection.style.display = 'flex';
                 }
                 this.updatePreview();
             };
-            img.onerror = (error) => {
-                console.error('Error loading image:', error);
-                alert('Error loading image. Please try a different file.');
+            
+            img.onerror = () => {
+                this.showError('Error loading image. Please try a different file.');
             };
+            
             img.src = e.target.result;
         };
         
-        reader.onerror = (error) => {
-            console.error('Error reading file:', error);
-            alert('Error reading file. Please try again.');
+        reader.onerror = () => {
+            this.showError('Error reading file. Please try again.');
         };
         
         reader.readAsDataURL(file);
     }
 
+    resetImageTransform() {
+        this.imageOffsetX = 0;
+        this.imageOffsetY = 0;
+        this.imageScale = 1.0;
+        
+        if (this.scaleSlider) {
+            this.scaleSlider.value = 100;
+            this.updateScaleDisplay();
+        }
+    }
+
     createCanvas() {
         this.canvasArea.innerHTML = '';
         
-        // Apply mobile-first CSS positioning
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) {
+        if (this.isMobile) {
             // Add CSS to move canvas visually to top on mobile
             const style = document.createElement('style');
             style.textContent = `
@@ -459,18 +569,15 @@ class VersLibreEditor {
         this.canvas.id = 'canvas';
         this.ctx = this.canvas.getContext('2d');
 
-        // Set canvas size - CORRECT Instagram 4:5 ratio dimensions
-        const width = 1080;   // Instagram recommended width
-        const height = 1350;  // Instagram recommended height (4:5 ratio = 1080:1350)
-        this.canvas.width = width;
-        this.canvas.height = height;
+        // Set canvas size using constants
+        this.canvas.width = this.CANVAS_WIDTH;
+        this.canvas.height = this.CANVAS_HEIGHT;
         
         // Responsive display size that maintains 4:5 ratio
-        const displayWidth = isMobile ? Math.min(320, window.innerWidth - 40) : 400;
-        const displayHeight = displayWidth * 1.25; // 4:5 ratio = 1.25
+        const displayWidth = this.isMobile ? Math.min(320, window.innerWidth - 40) : 400;
+        const displayHeight = displayWidth * 1.25;
         
         this.canvas.style.width = displayWidth + 'px';
-        this.canvas.style.height = displayHeight + 'px';
         this.canvas.style.maxWidth = '100%';
         this.canvas.style.height = 'auto';
 
@@ -674,16 +781,12 @@ class VersLibreEditor {
         const width = this.canvas.width;
         const height = this.canvas.height;
         
-        // Position using percentages as specified for 1080x1350 canvas:
-        // - 12% from left edge (~129.6px)
-        // - 5% from top (~67.5px)
-        // - Logo ends at 21% from left (so width = 21% - 12% = 9% = ~97.2px)
-        const paddingLeft = width * 0.12; // 12% from left edge
-        const paddingTop = height * 0.05; // 5% from top edge
-        const logoWidth = width * 0.09; // 9% width (ends at 21% from left)
+        const paddingLeft = width * this.LOGO_LEFT_PERCENT;
+        const paddingTop = height * this.LOGO_TOP_PERCENT;
+        const logoWidth = width * this.LOGO_WIDTH_PERCENT;
         const logoHeight = (logoWidth / this.logoImage.width) * this.logoImage.height;
 
-        console.log('Logo positioning (1080x1350):', { width, height, paddingLeft, paddingTop, logoWidth, logoHeight }); // Debug
+        // Logo positioned at specified percentages
 
         this.ctx.drawImage(
             this.logoImage,
@@ -699,15 +802,11 @@ class VersLibreEditor {
         const width = this.canvas.width;
         const height = this.canvas.height;
         
-        // Match real logo positioning using percentages for 1080x1350:
-        // - 12% from left edge (~129.6px)
-        // - 5% from top (~67.5px)
-        // - Logo ends at 21% from left (width = 9% = ~97.2px)
-        const paddingLeft = width * 0.12; // 12% from left edge
-        const paddingTop = height * 0.05; // 5% from top edge
-        const logoSize = width * 0.09; // 9% width
+        const paddingLeft = width * this.LOGO_LEFT_PERCENT;
+        const paddingTop = height * this.LOGO_TOP_PERCENT;
+        const logoSize = width * this.LOGO_WIDTH_PERCENT;
 
-        console.log('Fallback logo positioning (1080x1350):', { width, height, paddingLeft, paddingTop, logoSize }); // Debug
+        // Fallback logo positioning
 
         // Speech bubble background
         this.ctx.fillStyle = '#B91B5C';
@@ -748,13 +847,10 @@ class VersLibreEditor {
         
         if (!titleLine1 && !titleLine2) return;
 
-        // 30pt font size
-        const fontSize = '30pt';
-        
-        // Fixed Y positions for bottom baseline of each line
-        const line1Y = 1220;    // Line 1 bottom baseline at 1220px from top
-        const line2Y = 1260;    // Line 2 bottom baseline at 1260px from top
-        const textX = 130;      // X position: 130px from left
+        const fontSize = this.FONT_SIZE;
+        const line1Y = this.TEXT_LINE1_Y;
+        const line2Y = this.TEXT_LINE2_Y;
+        const textX = this.TEXT_X;
         
         // Use regular weight font
         this.ctx.font = `${fontSize} ${this.fontFamily}`;
@@ -762,7 +858,7 @@ class VersLibreEditor {
         this.ctx.textBaseline = 'bottom';
         this.ctx.fillStyle = 'white';
 
-        console.log('Text positioning (bottom baseline):', { line1Y, line2Y, textX, fontSize });
+        // Text positioned using constants
 
         // Draw lines at specified positions
         if (titleLine1) {
@@ -813,12 +909,9 @@ class VersLibreEditor {
         
         if (!dateTimeText) return;
 
-        // 30pt font size
-        const fontSize = '30pt';
-        
-        // Line 3 (date/time) bottom baseline position
-        const dateTimeY = 1300; // Bottom baseline at 1300px from top
-        const textX = 130;      // X position: 130px from left
+        const fontSize = this.DATETIME_FONT_SIZE;
+        const dateTimeY = this.TEXT_DATETIME_Y;
+        const textX = this.TEXT_X;
 
         // Use regular weight font for date/time
         this.ctx.font = `${fontSize} ${this.fontFamily}`;
@@ -826,7 +919,7 @@ class VersLibreEditor {
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'bottom';
 
-        console.log('Date/time positioning:', { textX, dateTimeY, fontSize });
+        // Date/time positioned using constants
 
         this.ctx.fillText(dateTimeText.toUpperCase(), textX, dateTimeY);
     }
@@ -845,13 +938,21 @@ class VersLibreEditor {
         }
     }
 
+    async initializeFontLoading() {
+        try {
+            await document.fonts.ready;
+            this.checkFontLoading();
+        } catch (error) {
+            // Font loading failed, use fallback
+            this.fontFamily = 'Arial, sans-serif';
+        }
+    }
+
     checkFontLoading() {
-        // Check multiple font name variations
         const fontVariations = [
             'Radial Regular',
             'Radial-Regular', 
-            'RadialRegular',
-            'radial-regular'
+            'RadialRegular'
         ];
         
         let fontFound = false;
@@ -859,24 +960,15 @@ class VersLibreEditor {
         if (document.fonts && document.fonts.check) {
             for (const fontName of fontVariations) {
                 const isLoaded = document.fonts.check(`16px "${fontName}"`);
-                console.log(`Font "${fontName}" loaded:`, isLoaded);
                 if (isLoaded) {
                     fontFound = true;
                     this.fontFamily = `"${fontName}", Arial, sans-serif`;
-                    console.log('✅ Using font:', this.fontFamily);
                     break;
                 }
             }
         }
         
         if (!fontFound) {
-            console.warn('⚠️ Radial Regular font not detected. Using Arial fallback.');
-            console.log('📝 To add Radial Regular font:');
-            console.log('1. Download Radial Regular .woff2 files');
-            console.log('2. Create a "fonts" folder in your project');
-            console.log('3. Add font files and update your CSS');
-            
-            // Use Arial as fallback - still looks professional
             this.fontFamily = 'Arial, sans-serif';
         }
     }
@@ -930,18 +1022,97 @@ class VersLibreEditor {
             }
             
         } catch (error) {
-            console.error('Download failed:', error);
-            alert('Download failed. Please try again or check your browser settings.');
+            this.showError('Download failed: ' + error.message);
         }
+    }
+
+    performDirectDownload(dataURL) {
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = 'vers-libre-event.png';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Debounced update for better performance
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func.apply(this, args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    validateElements() {
+        const requiredElements = [
+            'uploadArea', 'imageInput', 'canvasArea', 'downloadSection',
+            'titleLine1', 'titleLine2', 'dateInput', 'startTimeInput', 
+            'endTimeInput', 'scaleSlider', 'scaleValue', 'opacitySlider', 
+            'opacityValue', 'downloadBtn'
+        ];
+        
+        const missing = requiredElements.filter(id => !document.getElementById(id));
+        if (missing.length > 0) {
+            throw new Error(`Missing required elements: ${missing.join(', ')}`);
+        }
+    }
+
+    cleanup() {
+        // Remove all event listeners
+        this.cleanupFunctions.forEach(cleanup => cleanup());
+        this.cleanupFunctions = [];
+        
+        // Clear canvas and reset state
+        if (this.canvas && this.ctx) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        
+        this.canvas = null;
+        this.ctx = null;
+        this.image = null;
+        this.logoImage = null;
     }
 }
 
 // Initialize the editor when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM Content Loaded, initializing VersLibreEditor...');
     try {
-        new VersLibreEditor();
+        window.versLibreEditor = new VersLibreEditor();
     } catch (error) {
-        console.error('Error initializing VersLibreEditor:', error);
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ef4444;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 400px;
+            text-align: center;
+        `;
+        errorDiv.innerHTML = `
+            <h3>Initialization Error</h3>
+            <p>${error.message}</p>
+            <button onclick="location.reload()" style="
+                background: white;
+                color: #ef4444;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                margin-top: 10px;
+                cursor: pointer;
+            ">Reload Page</button>
+        `;
+        document.body.appendChild(errorDiv);
     }
 });
