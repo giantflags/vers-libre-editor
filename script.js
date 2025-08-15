@@ -973,6 +973,49 @@ class VersLibreEditor {
         }
     }
 
+    generateFilename() {
+        // Get the first line of text
+        const titleLine1 = this.titleLine1 ? this.titleLine1.value.trim() : '';
+        
+        // Get the date
+        let dateText = '';
+        if (this.dateInput && this.dateInput.value) {
+            const date = new Date(this.dateInput.value);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            dateText = `${year}-${month}-${day}`;
+        }
+        
+        // Create filename
+        let filename = '';
+        
+        if (titleLine1 && dateText) {
+            // Clean the title text for filename
+            const cleanTitle = titleLine1
+                .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove special characters
+                .replace(/\s+/g, '-') // Replace spaces with hyphens
+                .toLowerCase()
+                .substring(0, 30); // Limit length
+            
+            filename = `${cleanTitle}_${dateText}.png`;
+        } else if (titleLine1) {
+            const cleanTitle = titleLine1
+                .replace(/[^a-zA-Z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .toLowerCase()
+                .substring(0, 40);
+            
+            filename = `${cleanTitle}.png`;
+        } else if (dateText) {
+            filename = `vers-libre-event_${dateText}.png`;
+        } else {
+            filename = 'vers-libre-event.png';
+        }
+        
+        return filename;
+    }
+
     downloadImage() {
         if (!this.canvas) return;
 
@@ -980,6 +1023,7 @@ class VersLibreEditor {
             // Create download link
             const link = document.createElement('a');
             const dataURL = this.canvas.toDataURL('image/png', 1.0);
+            const filename = this.generateFilename();
             
             // iOS Safari workaround - open in new window if direct download fails
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -997,7 +1041,7 @@ class VersLibreEditor {
                                 <p>Long press the image below and select "Save to Photos" or "Add to Photos"</p>
                                 <img src="${dataURL}" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2);" alt="Vers Libre Event">
                                 <br><br>
-                                <a href="${dataURL}" download="vers-libre-event.png" style="display:inline-block; padding:12px 24px; background:#B91B5C; color:white; text-decoration:none; border-radius:6px; margin:10px;">
+                                <a href="${dataURL}" download="${filename}" style="display:inline-block; padding:12px 24px; background:#B91B5C; color:white; text-decoration:none; border-radius:6px; margin:10px;">
                                     Download Image
                                 </a>
                             </body>
@@ -1007,7 +1051,7 @@ class VersLibreEditor {
                 } else {
                     // Fallback if popup blocked
                     link.href = dataURL;
-                    link.download = 'vers-libre-event.png';
+                    link.download = filename;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -1015,7 +1059,7 @@ class VersLibreEditor {
             } else {
                 // Standard download for desktop/Android
                 link.href = dataURL;
-                link.download = 'vers-libre-event.png';
+                link.download = filename;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -1029,7 +1073,7 @@ class VersLibreEditor {
     performDirectDownload(dataURL) {
         const link = document.createElement('a');
         link.href = dataURL;
-        link.download = 'vers-libre-event.png';
+        link.download = this.generateFilename();
         link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
