@@ -18,9 +18,10 @@
         </div>
 
         <div class="editor-container">
-            <div class="sidebar">
-                <div class="sidebar-section">
-                    <h3>1. Upload Background</h3>
+            <!-- Controls Section - Now horizontal at top -->
+            <div class="controls-area">
+                <div class="control-section">
+                    <h3>📤 Upload Background</h3>
                     <div class="upload-area" id="uploadArea">
                         <div class="upload-icon">📤</div>
                         <p><strong>Click to upload</strong> or drag & drop</p>
@@ -31,8 +32,8 @@
                     <input type="file" id="imageInput" accept="image/*,.heic,.heif" style="display: none;">
                 </div>
 
-                <div class="sidebar-section">
-                    <h3>2. Text Content</h3>
+                <div class="control-section">
+                    <h3>✏️ Text Content</h3>
                     <div class="text-fields">
                         <div class="text-field-item">
                             <label for="titleLine1" class="text-field-label">Line 1</label>
@@ -46,10 +47,11 @@
                             <label for="dateInput" class="text-field-label">Date</label>
                             <input type="date" id="dateInput" aria-label="Event date">
                         </div>
-                        <div class="text-field-item">
-                            <label for="startTimeInput" class="text-field-label">Start Time</label>
-                            <select id="startTimeInput" aria-label="Event start time">
-                                <option value="">Select start time</option>
+                        <div class="text-field-row">
+                            <div class="text-field-item">
+                                <label for="startTimeInput" class="text-field-label">Start Time</label>
+                                <select id="startTimeInput" aria-label="Event start time">
+                                    <option value="">Select start time</option>
                                 <option value="00:00">00:00</option>
                                 <option value="00:30">00:30</option>
                                 <option value="01:00">01:00</option>
@@ -99,11 +101,11 @@
                                 <option value="23:00">23:00</option>
                                 <option value="23:30">23:30</option>
                             </select>
-                        </div>
-                        <div class="text-field-item">
-                            <label for="endTimeInput" class="text-field-label">End Time</label>
-                            <select id="endTimeInput" aria-label="Event end time">
-                                <option value="">Select end time</option>
+                            </div>
+                            <div class="text-field-item">
+                                <label for="endTimeInput" class="text-field-label">End Time</label>
+                                <select id="endTimeInput" aria-label="Event end time">
+                                    <option value="">Select end time</option>
                                 <option value="00:00">00:00</option>
                                 <option value="00:30">00:30</option>
                                 <option value="01:00">01:00</option>
@@ -155,30 +157,31 @@
                             </select>
                         </div>
                     </div>
-                </div>
-                
-                <div class="sidebar-section">
-                    <h3>3. Image Scaling</h3>
-                    <div class="control-group scale-control">
-                        <div class="size-controls">
-                            <div>
-                                <label for="scaleSlider">Image Scale</label>
-                                <input type="range" id="scaleSlider" min="50" max="200" value="100" aria-label="Image scale percentage">
-                            </div>
-                            <span id="scaleValue">100%</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="sidebar-section">
-                    <h3>4. Gradient</h3>
-                    <div class="control-group opacity-control">
-                        <div class="size-controls">
-                            <div>
-                                <label for="opacitySlider">Gradient Opacity</label>
-                                <input type="range" id="opacitySlider" min="0" max="100" value="30" aria-label="Gradient opacity percentage">
+                <div class="control-section">
+                    <h3>🎛️ Image & Effects</h3>
+                    <div class="effects-grid">
+                        <div class="control-group scale-control">
+                            <div class="size-controls">
+                                <div>
+                                    <label for="scaleSlider">Image Scale</label>
+                                    <input type="range" id="scaleSlider" min="50" max="200" value="100" aria-label="Image scale percentage">
+                                </div>
+                                <span id="scaleValue">100%</span>
                             </div>
-                            <span id="opacityValue">30%</span>
+                        </div>
+
+                        <div class="control-group opacity-control">
+                            <div class="size-controls">
+                                <div>
+                                    <label for="opacitySlider">Gradient Opacity</label>
+                                    <input type="range" id="opacitySlider" min="0" max="100" value="30" aria-label="Gradient opacity percentage">
+                                </div>
+                                <span id="opacityValue">30%</span>
+                            </div>
                         </div>
                     </div>
                 </div>

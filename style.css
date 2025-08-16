@@ -47,34 +47,36 @@ body {
     border-radius: 12px;
     border: 1px solid #e5e7eb;
     overflow: hidden;
-    display: grid;
-    grid-template-columns: 320px 1fr;
+    display: flex;
+    flex-direction: column;
     min-height: 600px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.sidebar {
+.controls-area {
     background: #f9fafb;
     padding: 16px;
-    border-right: 1px solid #e5e7eb;
-    overflow-y: auto;
-    max-height: 600px;
+    border-bottom: 1px solid #e5e7eb;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    max-height: none;
 }
 
-.sidebar-section {
-    margin-bottom: 12px;
+.control-section {
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 14px;
     transition: border-color 0.2s ease;
+    height: fit-content;
 }
 
-.sidebar-section:hover {
+.control-section:hover {
     border-color: #d1d5db;
 }
 
-.sidebar-section h3 {
+.control-section h3 {
     font-size: 0.9rem;
     font-weight: 600;
     margin-bottom: 12px;
@@ -250,7 +252,8 @@ body {
     justify-content: flex-start;
     background: #fafafa;
     position: relative;
-    border-left: 1px solid #e5e7eb;
+    flex: 1;
+    min-height: 400px;
 }
 
 .canvas-wrapper {
@@ -346,10 +349,25 @@ body {
     font-weight: 500;
 }
 
-/* Compact sidebar sections */
-.sidebar-section:nth-child(3),
-.sidebar-section:nth-child(4) {
-    min-height: auto;
+/* Time controls in row layout */
+.text-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.text-field-row .text-field-item {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+/* Effects grid layout */
+.effects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
 }
 
 /* Text input sizing */
@@ -357,6 +375,28 @@ body {
 #titleLine2 {
     width: 100%;
     max-width: 100%;
+}
+
+/* Enhanced control section styling */
+.control-section {
+    min-width: 280px;
+}
+
+.control-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+/* Better spacing for upload area */
+.upload-area {
+    margin-bottom: 0;
+}
+
+/* Compact text fields */
+.text-fields {
+    margin-bottom: 0;
 }
 
 .text-field-item:nth-child(1),
@@ -403,22 +443,27 @@ body {
     top: 6px;
 }
 
+/* Collapsible controls on smaller screens */
+@media (max-width: 900px) {
+    .controls-area {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 8px;
     }
     
     .editor-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
         border-radius: 8px;
     }
     
-    .sidebar {
-        border-right: none;
-        border-bottom: 1px solid #e5e7eb;
-        max-height: 400px;
+    .controls-area {
         padding: 12px;
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
     
     .header h2 {
@@ -427,8 +472,11 @@ body {
     
     .canvas-container {
         padding: 12px;
-        border-left: none;
-        border-top: 1px solid #e5e7eb;
+    }
+    
+    .text-field-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
     }
     
     /* Improve touch targets on mobile */
