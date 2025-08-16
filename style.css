@@ -47,58 +47,56 @@ body {
     border-radius: 12px;
     border: 1px solid #e5e7eb;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 280px 1fr;
     min-height: 600px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.controls-area {
+.sidebar {
     background: #f9fafb;
-    padding: 16px;
-    border-bottom: 1px solid #e5e7eb;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-    max-height: none;
+    padding: 8px;
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+    max-height: 600px;
 }
 
-.control-section {
+.sidebar-section {
+    margin-bottom: 8px;
     background: white;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 14px;
+    border-radius: 6px;
+    padding: 8px;
     transition: border-color 0.2s ease;
-    height: fit-content;
 }
 
-.control-section:hover {
+.sidebar-section:hover {
     border-color: #d1d5db;
 }
 
-.control-section h3 {
-    font-size: 0.9rem;
+.sidebar-section h3 {
+    font-size: 0.75rem;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
     color: #374151;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding-bottom: 8px;
+    padding-bottom: 4px;
     border-bottom: 1px solid #f3f4f6;
 }
 
 .upload-area {
     border: 2px dashed #d1d5db;
-    border-radius: 8px;
-    padding: 20px 16px;
+    border-radius: 4px;
+    padding: 12px 8px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
     background: #f9fafb;
-    margin-bottom: 12px;
+    margin-bottom: 0;
     position: relative;
 }
 
@@ -115,8 +113,8 @@ body {
 }
 
 .upload-icon {
-    font-size: 2rem;
-    margin-bottom: 8px;
+    font-size: 1.2rem;
+    margin-bottom: 4px;
     color: #6b7280;
 }
 
@@ -125,19 +123,19 @@ body {
 .upload-area p {
     font-weight: 500;
     color: #374151;
-    margin-bottom: 4px;
-    font-size: 0.9rem;
+    margin-bottom: 2px;
+    font-size: 0.75rem;
 }
 
 .upload-area p:last-child {
     font-weight: 400;
     color: #6b7280;
-    font-size: 0.8rem;
+    font-size: 0.65rem;
     margin-bottom: 0;
 }
 
 .control-group {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .control-group label {
@@ -152,10 +150,10 @@ body {
 .control-group select,
 .control-group textarea {
     width: 100%;
-    padding: 8px 12px;
+    padding: 6px 8px;
     border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background: white;
     font-family: inherit;
@@ -185,7 +183,7 @@ body {
 .size-controls {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     margin: 0;
     padding: 0;
 }
@@ -197,14 +195,14 @@ body {
 
 .size-controls span {
     flex: 0 0 auto;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: #6366f1;
-    min-width: 40px;
+    min-width: 35px;
     text-align: center;
     background: #f8fafc;
-    padding: 6px 10px;
-    border-radius: 4px;
+    padding: 4px 6px;
+    border-radius: 3px;
     border: 1px solid #e5e7eb;
     font-family: ui-monospace, monospace;
 }
@@ -216,15 +214,15 @@ body {
 
 .text-fields {
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 4px;
+    padding: 6px;
     background: #fafafa;
-    margin-bottom: 16px;
+    margin-bottom: 0;
 }
 
 .text-field-item {
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
     border-bottom: 1px solid #f3f4f6;
 }
 
@@ -237,23 +235,21 @@ body {
 .text-field-label {
     font-weight: 500;
     color: #374151;
-    margin-bottom: 4px;
-    font-size: 0.8rem;
+    margin-bottom: 2px;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     display: block;
 }
 
 .canvas-container {
-    padding: 20px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     background: #fafafa;
     position: relative;
-    flex: 1;
-    min-height: 400px;
 }
 
 .canvas-wrapper {
@@ -349,26 +345,7 @@ body {
     font-weight: 500;
 }
 
-/* Time controls in row layout */
-.text-field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 10px;
-}
-
-.text-field-row .text-field-item {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-/* Effects grid layout */
-.effects-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
+/* Remove unnecessary layouts */
 
 /* Text input sizing */
 #titleLine1,
@@ -377,16 +354,9 @@ body {
     max-width: 100%;
 }
 
-/* Enhanced control section styling */
-.control-section {
-    min-width: 280px;
-}
-
-.control-section h3 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
+/* Compact sidebar styling */
+.sidebar {
+    width: 280px;
 }
 
 /* Better spacing for upload area */
@@ -443,27 +413,22 @@ body {
     top: 6px;
 }
 
-/* Collapsible controls on smaller screens */
-@media (max-width: 900px) {
-    .controls-area {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 8px;
     }
     
     .editor-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
         border-radius: 8px;
     }
     
-    .controls-area {
-        padding: 12px;
-        grid-template-columns: 1fr;
-        gap: 12px;
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+        max-height: 300px;
+        padding: 6px;
     }
     
     .header h2 {
@@ -474,9 +439,9 @@ body {
         padding: 12px;
     }
     
-    .text-field-row {
-        grid-template-columns: 1fr;
-        gap: 8px;
+    .sidebar-section {
+        margin-bottom: 6px;
+        padding: 6px;
     }
     
     /* Improve touch targets on mobile */
@@ -488,11 +453,11 @@ body {
     
     .control-group input,
     .control-group select {
-        min-height: 44px;
-        padding: 10px 12px;
+        min-height: 40px;
+        padding: 8px 10px;
     }
     
     .upload-area {
-        padding: 16px 12px;
+        padding: 10px 8px;
     }
 }

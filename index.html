@@ -18,10 +18,9 @@
         </div>
 
         <div class="editor-container">
-            <!-- Controls Section - Now horizontal at top -->
-            <div class="controls-area">
-                <div class="control-section">
-                    <h3>📤 Upload Background</h3>
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3>📤 Upload</h3>
                     <div class="upload-area" id="uploadArea">
                         <div class="upload-icon">📤</div>
                         <p><strong>Click to upload</strong> or drag & drop</p>
@@ -32,8 +31,8 @@
                     <input type="file" id="imageInput" accept="image/*,.heic,.heif" style="display: none;">
                 </div>
 
-                <div class="control-section">
-                    <h3>✏️ Text Content</h3>
+                <div class="sidebar-section">
+                    <h3>✏️ Text</h3>
                     <div class="text-fields">
                         <div class="text-field-item">
                             <label for="titleLine1" class="text-field-label">Line 1</label>
@@ -47,11 +46,10 @@
                             <label for="dateInput" class="text-field-label">Date</label>
                             <input type="date" id="dateInput" aria-label="Event date">
                         </div>
-                        <div class="text-field-row">
-                            <div class="text-field-item">
-                                <label for="startTimeInput" class="text-field-label">Start Time</label>
-                                <select id="startTimeInput" aria-label="Event start time">
-                                    <option value="">Select start time</option>
+                        <div class="text-field-item">
+                            <label for="startTimeInput" class="text-field-label">Start Time</label>
+                            <select id="startTimeInput" aria-label="Event start time">
+                                <option value="">Select start time</option>
                                 <option value="00:00">00:00</option>
                                 <option value="00:30">00:30</option>
                                 <option value="01:00">01:00</option>
@@ -101,11 +99,11 @@
                                 <option value="23:00">23:00</option>
                                 <option value="23:30">23:30</option>
                             </select>
-                            </div>
-                            <div class="text-field-item">
-                                <label for="endTimeInput" class="text-field-label">End Time</label>
-                                <select id="endTimeInput" aria-label="Event end time">
-                                    <option value="">Select end time</option>
+                        </div>
+                        <div class="text-field-item">
+                            <label for="endTimeInput" class="text-field-label">End Time</label>
+                            <select id="endTimeInput" aria-label="Event end time">
+                                <option value="">Select end time</option>
                                 <option value="00:00">00:00</option>
                                 <option value="00:30">00:30</option>
                                 <option value="01:00">01:00</option>
@@ -161,9 +159,8 @@
                     </div>
                 </div>
 
-                <div class="control-section">
-                    <h3>🎛️ Image & Effects</h3>
-                    <div class="effects-grid">
+                <div class="sidebar-section">
+                    <h3>🎛️ Controls</h3>
                         <div class="control-group scale-control">
                             <div class="size-controls">
                                 <div>
