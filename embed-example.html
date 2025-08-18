@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vers Libre Editor - Embed Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #6366f1;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .embed-container {
+            position: relative;
+            width: 100%;
+            min-height: 800px;
+        }
+        
+        .embed-container iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
+            display: block;
+        }
+        
+        .instructions {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Vers Libre Editor - Embedded Version</h1>
+            <p>This demonstrates how to embed the editor in your website</p>
+        </div>
+        
+        <div class="embed-container">
+            <iframe 
+                id="versLibreEditor"
+                src="./index.html?embed=true" 
+                title="Vers Libre Image Editor"
+                loading="lazy">
+            </iframe>
+        </div>
+        
+        <div class="instructions">
+            <h2>How to Embed in Google Sites:</h2>
+            
+            <h3>Method 1: Simple Embed</h3>
+            <p>1. In Google Sites, click <strong>Insert → Embed</strong></p>
+            <p>2. Paste this URL:</p>
+            <div class="code-block">https://giantflags.github.io/vers-libre-editor/?embed=true</div>
+            <p>3. Set height to <strong>800px</strong> or more</p>
+            
+            <h3>Method 2: Custom HTML</h3>
+            <p>Use this HTML code in an embed block:</p>
+            <div class="code-block">&lt;iframe 
+  src="https://giantflags.github.io/vers-libre-editor/?embed=true" 
+  width="100%" 
+  height="900px" 
+  frameborder="0"
+  allowfullscreen
+  title="Vers Libre Image Editor"&gt;
+&lt;/iframe&gt;</div>
+
+            <h3>Features in Embed Mode:</h3>
+            <ul>
+                <li>✅ Compact header design</li>
+                <li>✅ Seamless integration</li>
+                <li>✅ Full functionality preserved</li>
+                <li>✅ Mobile responsive</li>
+                <li>✅ Auto-height adjustment</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Listen for messages from the embedded editor
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'versLibreEditor') {
+                const iframe = document.getElementById('versLibreEditor');
+                
+                if (event.data.action === 'ready') {
+                    console.log('Editor loaded successfully');
+                    iframe.style.height = Math.max(800, event.data.height) + 'px';
+                } else if (event.data.action === 'resize') {
+                    iframe.style.height = Math.max(800, event.data.height) + 'px';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

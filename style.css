@@ -23,6 +23,41 @@ body {
     line-height: 1.5;
 }
 
+/* Embed mode styles */
+body.embed-mode {
+    background: white;
+    min-height: auto;
+    padding: 0;
+}
+
+body.embed-mode .container {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+}
+
+body.embed-mode .header {
+    padding: 8px 12px;
+    margin-bottom: 0;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+body.embed-mode .header h3 {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+body.embed-mode .header-logo {
+    height: 24px;
+}
+
+body.embed-mode .editor-container {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Test Guide</title>
+    <style>
+        body { font-family: system-ui; margin: 20px; max-width: 1200px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 2px solid #e9ecef; border-radius: 8px; }
+        .test-step { margin: 10px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #007bff; }
+        .expected { background: #d4edda; border-left-color: #28a745; }
+        .warning { background: #fff3cd; border-left-color: #ffc107; }
+        .error { background: #f8d7da; border-left-color: #dc3545; }
+        iframe { width: 100%; height: 600px; border: 2px solid #dee2e6; border-radius: 8px; }
+        .controls { margin: 15px 0; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; font-weight: bold; }
+        .checklist { background: #f8f9fa; padding: 15px; border-radius: 5px; }
+        .checklist input[type="checkbox"] { margin-right: 8px; }
+        .checklist label { display: block; margin: 5px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Vers Libre Editor - Complete Manual Test</h1>
+    
+    <div class="controls">
+        <button class="btn-primary" onclick="startTest()">🚀 Start Test</button>
+        <button class="btn-success" onclick="openConsole()">🔍 Open Console</button>
+        <button class="btn-warning" onclick="openDevTools()">🛠️ DevTools Help</button>
+        <button class="btn-danger" onclick="resetTest()">🔄 Reset</button>
+    </div>
+    
+    <div class="status" id="status">Ready to test! Click 'Start Test' to begin.</div>
+    
+    <!-- Embedded app for testing -->
+    <iframe id="app-frame" src="/" style="display: none;"></iframe>
+    
+    <div class="test-section">
+        <h2>📋 Testing Checklist</h2>
+        <div class="checklist" id="checklist">
+            <h3>1. Basic Functionality</h3>
+            <label><input type="checkbox" id="check-load"> ✅ Page loads without errors</label>
+            <label><input type="checkbox" id="check-console"> ✅ Console is clean (no debug logs)</label>
+            <label><input type="checkbox" id="check-upload"> ✅ Image upload works (click or drag-drop)</label>
+            <label><input type="checkbox" id="check-canvas"> ✅ Canvas appears with uploaded image</label>
+            <label><input type="checkbox" id="check-text"> ✅ Text fields update canvas in real-time</label>
+            <label><input type="checkbox" id="check-date"> ✅ Date/time fields work correctly</label>
+            <label><input type="checkbox" id="check-scale"> ✅ Scale slider resizes image smoothly</label>
+            <label><input type="checkbox" id="check-opacity"> ✅ Opacity slider changes gradient</label>
+            <label><input type="checkbox" id="check-drag"> ✅ Image can be dragged to reposition</label>
+            <label><input type="checkbox" id="check-download"> ✅ Download button saves PNG file</label>
+            
+            <h3>2. Error Handling</h3>
+            <label><input type="checkbox" id="check-invalid-file"> ✅ Invalid file shows styled error message</label>
+            <label><input type="checkbox" id="check-large-file"> ✅ Large file (>10MB) rejected with error</label>
+            <label><input type="checkbox" id="check-no-alerts"> ✅ No browser alert() popups used</label>
+            <label><input type="checkbox" id="check-error-style"> ✅ Errors show as styled notifications</label>
+            
+            <h3>3. Performance</h3>
+            <label><input type="checkbox" id="check-smooth-typing"> ✅ Typing in fields is smooth (no lag)</label>
+            <label><input type="checkbox" id="check-smooth-sliders"> ✅ Moving sliders is smooth</label>
+            <label><input type="checkbox" id="check-smooth-drag"> ✅ Dragging image is smooth</label>
+            <label><input type="checkbox" id="check-large-image"> ✅ Large images handled gracefully</label>
+            
+            <h3>4. Accessibility</h3>
+            <label><input type="checkbox" id="check-tab-nav"> ✅ Tab navigation works through all controls</label>
+            <label><input type="checkbox" id="check-focus"> ✅ Focus indicators are visible</label>
+            <label><input type="checkbox" id="check-labels"> ✅ All inputs have proper labels</label>
+            <label><input type="checkbox" id="check-canvas-access"> ✅ Canvas is accessible via keyboard</label>
+            
+            <h3>5. Mobile/Responsive</h3>
+            <label><input type="checkbox" id="check-mobile-layout"> ✅ Mobile layout adapts correctly</label>
+            <label><input type="checkbox" id="check-touch-targets"> ✅ Touch targets are adequate (≥44px)</label>
+            <label><input type="checkbox" id="check-touch-drag"> ✅ Touch dragging works on mobile</label>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 Step-by-Step Test Instructions</h2>
+        
+        <div class="test-step">
+            <strong>Step 1: Load & Console Check</strong><br>
+            The app should be loaded above. Open browser console (F12) and verify it's clean with no debug messages.
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> Clean console, no "console.log" spam that was there before
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 2: Upload Image</strong><br>
+            Click the upload area or drag the test image file (<code>test-image.jpg</code>) onto it.
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> Canvas appears showing the uploaded image with Vers Libre logo overlay
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 3: Text Input</strong><br>
+            Type in "Line 1" field: <code>AWESOME RADIO SHOW</code><br>
+            Type in "Line 2" field: <code>FEAT. SPECIAL GUEST</code>
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> Text appears on canvas immediately as you type (smooth updates)
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 4: Date & Time</strong><br>
+            Select today's date and set start time to 20:00, end time to 22:00
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> Date and time appear formatted as "DD.MM.YY｜20:00-22:00"
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 5: Image Controls</strong><br>
+            Move the "Image Scale" slider and "Gradient Opacity" slider
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> Smooth responsive changes, percentage values update
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 6: Image Repositioning</strong><br>
+            Click and drag the image on the canvas to reposition it
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> Smooth dragging with cursor changes and brief instruction overlay
+        </div>
+        
+        <div class="test-step">
+            <strong>Step 7: Download</strong><br>
+            Click "Download Image" button
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> PNG file downloads automatically (or opens in new window on iOS/Safari)
+        </div>
+        
+        <div class="test-step warning">
+            <strong>Step 8: Error Testing</strong><br>
+            Try uploading a text file (.txt) to test error handling
+        </div>
+        
+        <div class="test-step expected">
+            <strong>Expected:</strong> Styled error notification appears (not browser alert), auto-dismisses after 5 seconds
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔍 What to Look For</h2>
+        
+        <div class="test-step">
+            <strong>✅ Improvements Working:</strong>
+            <ul>
+                <li>Clean console (no debug spam)</li>
+                <li>Smooth performance (no lag when typing/dragging)</li>
+                <li>Styled error messages instead of alerts</li>
+                <li>Proper accessibility (tab navigation, focus indicators)</li>
+                <li>Better mobile experience</li>
+            </ul>
+        </div>
+        
+        <div class="test-step error">
+            <strong>❌ Issues to Report:</strong>
+            <ul>
+                <li>Console shows debug messages</li>
+                <li>Laggy or stuttering animations</li>
+                <li>Browser alert() popups</li>
+                <li>Missing focus indicators</li>
+                <li>Layout issues on mobile</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function startTest() {
+            document.getElementById('app-frame').style.display = 'block';
+            document.getElementById('status').textContent = 'Test started! Follow the steps above.';
+            document.getElementById('status').className = 'status';
+            document.getElementById('status').style.background = '#d4edda';
+            document.getElementById('status').style.color = '#155724';
+        }
+        
+        function openConsole() {
+            alert('Press F12 (or Cmd+Opt+I on Mac) to open browser console. Look for clean output with no debug messages.');
+        }
+        
+        function openDevTools() {
+            alert('Browser DevTools Help:\\n\\n1. Console (F12): Check for clean output\\n2. Network: Verify resources load\\n3. Performance: Monitor for 60fps\\n4. Accessibility: Use built-in checker\\n5. Elements: Inspect ARIA attributes');
+        }
+        
+        function resetTest() {
+            document.getElementById('app-frame').src = document.getElementById('app-frame').src;
+            document.getElementById('status').textContent = 'Test reset! Click Start Test to begin again.';
+            document.getElementById('status').className = 'status';
+            document.getElementById('status').style.background = '#fff3cd';
+            document.getElementById('status').style.color = '#856404';
+            
+            // Uncheck all checkboxes
+            document.querySelectorAll('#checklist input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+        
+        // Auto-check items as they're tested
+        document.querySelectorAll('#checklist input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateProgress);
+        });
+        
+        function updateProgress() {
+            const total = document.querySelectorAll('#checklist input[type="checkbox"]').length;
+            const checked = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length;
+            const percentage = Math.round((checked / total) * 100);
+            
+            if (percentage === 100) {
+                document.getElementById('status').textContent = `🎉 All tests complete! (${checked}/${total})`;
+                document.getElementById('status').style.background = '#d4edda';
+                document.getElementById('status').style.color = '#155724';
+            } else {
+                document.getElementById('status').textContent = `Testing in progress... ${checked}/${total} (${percentage}%)`;
+                document.getElementById('status').style.background = '#d1ecf1';
+                document.getElementById('status').style.color = '#0c5460';
+            }
+        }
+        
+        // Check if running on mobile
+        if (window.innerWidth <= 768) {
+            document.body.insertAdjacentHTML('afterbegin', 
+                '<div class="test-step warning"><strong>📱 Mobile Device Detected:</strong> Pay special attention to touch interactions and responsive layout testing.</div>'
+            );
+        }
+    </script>
+</body>
+</html>

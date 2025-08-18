@@ -35,16 +35,61 @@ class VersLibreEditor {
         // Mobile detection
         this.isMobile = this.detectMobile();
         
+        // Check if running in iframe for embedding
+        this.isEmbedded = this.detectEmbedMode();
+        
         this.initializeElements();
         this.bindEvents();
         this.updateOpacityDisplay();
         this.updateScaleDisplay();
         this.loadLogo();
         this.initializeFontLoading();
+        
+        // Apply embed mode styling if needed
+        if (this.isEmbedded) {
+            this.applyEmbedMode();
+        }
     }
 
     detectMobile() {
         return window.innerWidth <= 768;
+    }
+
+    detectEmbedMode() {
+        // Check if running in iframe
+        const inIframe = window.self !== window.top;
+        
+        // Check URL parameters for embed mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const embedParam = urlParams.get('embed');
+        
+        return inIframe || embedParam === 'true';
+    }
+
+    applyEmbedMode() {
+        document.body.classList.add('embed-mode');
+        
+        // Send message to parent about successful load
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+                type: 'versLibreEditor',
+                action: 'ready',
+                height: document.body.scrollHeight
+            }, '*');
+        }
+        
+        // Listen for resize to update parent
+        const resizeObserver = new ResizeObserver(() => {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'versLibreEditor',
+                    action: 'resize',
+                    height: document.body.scrollHeight
+                }, '*');
+            }
+        });
+        
+        resizeObserver.observe(document.body);
     }
 
     initializeElements() {

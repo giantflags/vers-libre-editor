@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Automated Test Results</title>
+    <style>
+        body { font-family: system-ui; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .pass { background: #d4edda; border-color: #c3e6cb; }
+        .fail { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        #console-output { max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Vers Libre Editor - Automated Test Results</h1>
+    <div id="test-results"></div>
+    
+    <script>
+        const results = document.getElementById('test-results');
+        
+        function addTest(name, status, details = '') {
+            const div = document.createElement('div');
+            div.className = `test ${status}`;
+            div.innerHTML = `
+                <strong>${status.toUpperCase()}: ${name}</strong>
+                ${details ? `<pre>${details}</pre>` : ''}
+            `;
+            results.appendChild(div);
+        }
+        
+        function runTests() {
+            addTest('Page Load Test', 'info', 'Starting comprehensive test suite...');
+            
+            // Test 1: Check if main application loads
+            setTimeout(() => {
+                try {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = '/';
+                    iframe.style.width = '800px';
+                    iframe.style.height = '600px';
+                    iframe.style.border = '1px solid #ccc';
+                    iframe.onload = () => {
+                        addTest('Application Load', 'pass', 'Main application loaded successfully');
+                        
+                        // Test VersLibreEditor initialization
+                        const iframeDoc = iframe.contentWindow;
+                        if (iframeDoc.versLibreEditor) {
+                            addTest('Editor Initialization', 'pass', 'VersLibreEditor instance created');
+                        } else {
+                            addTest('Editor Initialization', 'fail', 'VersLibreEditor not found on window');
+                        }
+                        
+                        // Test console cleanliness
+                        const originalConsole = iframe.contentWindow.console;
+                        let consoleMessages = [];
+                        
+                        iframe.contentWindow.console.log = function(...args) {
+                            consoleMessages.push(['LOG', ...args]);
+                        };
+                        iframe.contentWindow.console.error = function(...args) {
+                            consoleMessages.push(['ERROR', ...args]);
+                        };
+                        iframe.contentWindow.console.warn = function(...args) {
+                            consoleMessages.push(['WARN', ...args]);
+                        };
+                        
+                        // Wait a bit then check console
+                        setTimeout(() => {
+                            const debugLogs = consoleMessages.filter(msg => 
+                                msg[0] === 'LOG' && typeof msg[1] === 'string'
+                            );
+                            
+                            if (debugLogs.length === 0) {
+                                addTest('Console Cleanliness', 'pass', 'No debug console.log statements found');
+                            } else {
+                                addTest('Console Cleanliness', 'fail', 
+                                    `Found ${debugLogs.length} debug log statements:\\n${debugLogs.map(l => l.slice(1).join(' ')).join('\\n')}`);
+                            }
+                            
+                            // Test error handling
+                            testErrorHandling(iframe);
+                        }, 1000);
+                    };
+                    
+                    iframe.onerror = () => {
+                        addTest('Application Load', 'fail', 'Failed to load main application');
+                    };
+                    
+                    results.appendChild(iframe);
+                    
+                } catch (error) {
+                    addTest('Application Load', 'fail', error.message);
+                }
+            }, 100);
+        }
+        
+        function testErrorHandling(iframe) {
+            addTest('Error Handling Test', 'info', 'Testing file validation...');
+            
+            try {
+                const editor = iframe.contentWindow.versLibreEditor;
+                if (!editor) {
+                    addTest('Error Handling', 'fail', 'Editor instance not available');
+                    return;
+                }
+                
+                // Test file validation with invalid file
+                const invalidFile = new File(['not an image'], 'test.txt', { type: 'text/plain' });
+                const validation = editor.validateFile(invalidFile);
+                
+                if (!validation.valid) {
+                    addTest('File Validation', 'pass', `Correctly rejected invalid file: ${validation.error}`);
+                } else {
+                    addTest('File Validation', 'fail', 'Failed to reject invalid file type');
+                }
+                
+                // Test file size validation
+                const largeContent = new Array(11 * 1024 * 1024).fill('x').join(''); // 11MB
+                const largeFile = new File([largeContent], 'large.jpg', { type: 'image/jpeg' });
+                const sizeValidation = editor.validateFile(largeFile);
+                
+                if (!sizeValidation.valid && sizeValidation.error.includes('size')) {
+                    addTest('File Size Validation', 'pass', `Correctly rejected large file: ${sizeValidation.error}`);
+                } else {
+                    addTest('File Size Validation', 'fail', 'Failed to reject oversized file');
+                }
+                
+                // Test constants
+                testConstants(editor);
+                
+            } catch (error) {
+                addTest('Error Handling', 'fail', error.message);
+            }
+        }
+        
+        function testConstants(editor) {
+            addTest('Constants Test', 'info', 'Checking if hardcoded values were replaced...');
+            
+            const expectedConstants = [
+                'CANVAS_WIDTH', 'CANVAS_HEIGHT', 'TEXT_X', 'TEXT_LINE1_Y', 
+                'TEXT_LINE2_Y', 'TEXT_DATETIME_Y', 'FONT_SIZE', 'MAX_FILE_SIZE'
+            ];
+            
+            const missingConstants = expectedConstants.filter(constant => 
+                editor[constant] === undefined
+            );
+            
+            if (missingConstants.length === 0) {
+                addTest('Constants Definition', 'pass', `All ${expectedConstants.length} constants properly defined`);
+                
+                // Check specific values
+                const constantValues = {
+                    CANVAS_WIDTH: editor.CANVAS_WIDTH,
+                    CANVAS_HEIGHT: editor.CANVAS_HEIGHT,
+                    MAX_FILE_SIZE: editor.MAX_FILE_SIZE
+                };
+                
+                addTest('Constants Values', 'pass', 
+                    `Constants loaded:\\n${Object.entries(constantValues).map(([k,v]) => `${k}: ${v}`).join('\\n')}`);
+            } else {
+                addTest('Constants Definition', 'fail', `Missing constants: ${missingConstants.join(', ')}`);
+            }
+            
+            // Test cleanup method
+            if (typeof editor.cleanup === 'function') {
+                addTest('Cleanup Method', 'pass', 'Cleanup method available for memory management');
+            } else {
+                addTest('Cleanup Method', 'fail', 'Cleanup method not found');
+            }
+            
+            finalizeTests();
+        }
+        
+        function finalizeTests() {
+            addTest('Test Suite Complete', 'info', 
+                `All automated tests completed. Check results above.\\n\\n` +
+                `Manual Testing:\\n` +
+                `1. Upload an image using the interface\\n` +
+                `2. Enter text in the form fields\\n` +
+                `3. Adjust sliders and drag the image\\n` +
+                `4. Download the final result\\n` +
+                `5. Check browser console for cleanliness`
+            );
+        }
+        
+        // Start tests when page loads
+        runTests();
+    </script>
+</body>
+</html>
