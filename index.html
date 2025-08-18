@@ -14,7 +14,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Vers Libre Image Editor</h2>
+            <h3><img src="vers-libre-logo.png" alt="Vers Libre" class="header-logo"> Image Editor</h3>
         </div>
 
         <div class="editor-container">
@@ -155,30 +155,33 @@
                             </select>
                         </div>
                     </div>
-                        </div>
-                    </div>
                 </div>
-
+                
                 <div class="sidebar-section">
                     <h3>🎛️ Controls</h3>
-                        <div class="control-group scale-control">
-                            <div class="size-controls">
-                                <div>
-                                    <label for="scaleSlider">Image Scale</label>
-                                    <input type="range" id="scaleSlider" min="50" max="200" value="100" aria-label="Image scale percentage">
-                                </div>
-                                <span id="scaleValue">100%</span>
+                    <div class="control-group">
+                        <label for="aspectRatio">Canvas Format</label>
+                        <select id="aspectRatio" aria-label="Canvas aspect ratio">
+                            <option value="4:5">4:5 (1080×1350) - Vertical</option>
+                            <option value="1:1">1:1 (1080×1080) - Square</option>
+                        </select>
+                    </div>
+                    <div class="control-group scale-control">
+                        <div class="size-controls">
+                            <div>
+                                <label for="scaleSlider">Image Scale</label>
+                                <input type="range" id="scaleSlider" min="50" max="200" value="100" aria-label="Image scale percentage">
                             </div>
+                            <span id="scaleValue">100%</span>
                         </div>
-
-                        <div class="control-group opacity-control">
-                            <div class="size-controls">
-                                <div>
-                                    <label for="opacitySlider">Gradient Opacity</label>
-                                    <input type="range" id="opacitySlider" min="0" max="100" value="30" aria-label="Gradient opacity percentage">
-                                </div>
-                                <span id="opacityValue">30%</span>
+                    </div>
+                    <div class="control-group opacity-control">
+                        <div class="size-controls">
+                            <div>
+                                <label for="opacitySlider">Gradient Opacity</label>
+                                <input type="range" id="opacitySlider" min="0" max="100" value="30" aria-label="Gradient opacity percentage">
                             </div>
+                            <span id="opacityValue">30%</span>
                         </div>
                     </div>
                 </div>

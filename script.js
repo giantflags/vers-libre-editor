@@ -6,7 +6,8 @@ class VersLibreEditor {
         this.logoImage = null;
         this.cleanupFunctions = [];
         
-        // Constants
+        // Constants - will be updated based on aspect ratio
+        this.currentAspectRatio = '4:5'; // Default to 4:5
         this.CANVAS_WIDTH = 1080;
         this.CANVAS_HEIGHT = 1350;
         this.LOGO_LEFT_PERCENT = 0.12;
@@ -87,6 +88,9 @@ class VersLibreEditor {
         // Action buttons
         this.downloadBtn = document.getElementById('downloadBtn');
         
+        // Aspect ratio control
+        this.aspectRatioSelect = document.getElementById('aspectRatio');
+        
         // Validation
         this.validateElements();
     }
@@ -164,6 +168,17 @@ class VersLibreEditor {
 
         // Action buttons
         if (this.downloadBtn) this.downloadBtn.addEventListener('click', this.downloadImage.bind(this));
+        
+        // Aspect ratio control
+        if (this.aspectRatioSelect) {
+            this.aspectRatioSelect.addEventListener('change', () => {
+                this.updateAspectRatio();
+                if (this.canvas && this.image) {
+                    this.createCanvas();
+                    this.updatePreview();
+                }
+            });
+        }
         
         // Events bound successfully
     }
@@ -544,6 +559,9 @@ class VersLibreEditor {
     createCanvas() {
         this.canvasArea.innerHTML = '';
         
+        // Update dimensions based on current aspect ratio
+        this.updateAspectRatio();
+        
         if (this.isMobile) {
             // Add CSS to move canvas visually to top on mobile
             const style = document.createElement('style');
@@ -569,13 +587,14 @@ class VersLibreEditor {
         this.canvas.id = 'canvas';
         this.ctx = this.canvas.getContext('2d');
 
-        // Set canvas size using constants
+        // Set canvas size using current dimensions
         this.canvas.width = this.CANVAS_WIDTH;
         this.canvas.height = this.CANVAS_HEIGHT;
         
-        // Responsive display size that maintains 4:5 ratio
+        // Responsive display size that maintains current aspect ratio
         const displayWidth = this.isMobile ? Math.min(320, window.innerWidth - 40) : 400;
-        const displayHeight = displayWidth * 1.25;
+        const aspectRatio = this.CANVAS_HEIGHT / this.CANVAS_WIDTH;
+        const displayHeight = displayWidth * aspectRatio;
         
         this.canvas.style.width = displayWidth + 'px';
         this.canvas.style.maxWidth = '100%';
@@ -973,6 +992,28 @@ class VersLibreEditor {
         }
     }
 
+    updateAspectRatio() {
+        this.currentAspectRatio = this.aspectRatioSelect.value;
+        
+        if (this.currentAspectRatio === '1:1') {
+            // Square format
+            this.CANVAS_WIDTH = 1080;
+            this.CANVAS_HEIGHT = 1080;
+            // Adjust positions for square format
+            this.TEXT_LINE1_Y = 950;  // Move up from 1220
+            this.TEXT_LINE2_Y = 990;  // Move up from 1260
+            this.TEXT_DATETIME_Y = 1030; // Move up from 1300
+        } else {
+            // 4:5 format (original)
+            this.CANVAS_WIDTH = 1080;
+            this.CANVAS_HEIGHT = 1350;
+            // Original positions
+            this.TEXT_LINE1_Y = 1220;
+            this.TEXT_LINE2_Y = 1260;
+            this.TEXT_DATETIME_Y = 1300;
+        }
+    }
+
     generateFilename() {
         // Get the first line of text
         const titleLine1 = this.titleLine1 ? this.titleLine1.value.trim() : '';
@@ -987,6 +1028,9 @@ class VersLibreEditor {
             dateText = `${year}-${month}-${day}`;
         }
         
+        // Add aspect ratio suffix
+        const formatSuffix = this.currentAspectRatio === '1:1' ? '_square' : '';
+        
         // Create filename
         let filename = '';
         
@@ -998,7 +1042,7 @@ class VersLibreEditor {
                 .toLowerCase()
                 .substring(0, 30); // Limit length
             
-            filename = `${cleanTitle}_${dateText}.png`;
+            filename = `${cleanTitle}_${dateText}${formatSuffix}.png`;
         } else if (titleLine1) {
             const cleanTitle = titleLine1
                 .replace(/[^a-zA-Z0-9\s-]/g, '')
@@ -1006,11 +1050,11 @@ class VersLibreEditor {
                 .toLowerCase()
                 .substring(0, 40);
             
-            filename = `${cleanTitle}.png`;
+            filename = `${cleanTitle}${formatSuffix}.png`;
         } else if (dateText) {
-            filename = `vers-libre-event_${dateText}.png`;
+            filename = `vers-libre-event_${dateText}${formatSuffix}.png`;
         } else {
-            filename = 'vers-libre-event.png';
+            filename = `vers-libre-event${formatSuffix}.png`;
         }
         
         return filename;
@@ -1098,7 +1142,7 @@ class VersLibreEditor {
             'uploadArea', 'imageInput', 'canvasArea', 'downloadSection',
             'titleLine1', 'titleLine2', 'dateInput', 'startTimeInput', 
             'endTimeInput', 'scaleSlider', 'scaleValue', 'opacitySlider', 
-            'opacityValue', 'downloadBtn'
+            'opacityValue', 'downloadBtn', 'aspectRatio'
         ];
         
         const missing = requiredElements.filter(id => !document.getElementById(id));
