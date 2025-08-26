@@ -1039,20 +1039,32 @@ class VersLibreEditor {
 
     updateAspectRatio() {
         this.currentAspectRatio = this.aspectRatioSelect.value;
-        
         if (this.currentAspectRatio === '1:1') {
             // Square format
             this.CANVAS_WIDTH = 1080;
             this.CANVAS_HEIGHT = 1080;
-            // Adjust positions for square format
-            this.TEXT_LINE1_Y = 950;  // Move up from 1220
-            this.TEXT_LINE2_Y = 990;  // Move up from 1260
-            this.TEXT_DATETIME_Y = 1030; // Move up from 1300
+            this.TEXT_LINE1_Y = 950;
+            this.TEXT_LINE2_Y = 990;
+            this.TEXT_DATETIME_Y = 1030;
+        } else if (this.currentAspectRatio === 'obs-hd') {
+            // OBS Overlay HD format
+            this.CANVAS_WIDTH = 1920;
+            this.CANVAS_HEIGHT = 1080;
+            // Adjust text positions for HD overlay (example values, can be tweaked)
+            this.TEXT_LINE1_Y = 900;
+            this.TEXT_LINE2_Y = 950;
+            this.TEXT_DATETIME_Y = 1000;
+            // Increase preview size by 30%
+            setTimeout(() => {
+                const canvas = document.getElementById('canvas');
+                if (canvas) {
+                    canvas.style.width = '520px'; // 400px * 1.3
+                }
+            }, 100);
         } else {
             // 4:5 format (original)
             this.CANVAS_WIDTH = 1080;
             this.CANVAS_HEIGHT = 1350;
-            // Original positions
             this.TEXT_LINE1_Y = 1220;
             this.TEXT_LINE2_Y = 1260;
             this.TEXT_DATETIME_Y = 1300;
@@ -1062,46 +1074,55 @@ class VersLibreEditor {
     generateFilename() {
         // Get the first line of text
         const titleLine1 = this.titleLine1 ? this.titleLine1.value.trim() : '';
-        
-        // Get the date
         let dateText = '';
-        if (this.dateInput && this.dateInput.value) {
-            const date = new Date(this.dateInput.value);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            dateText = `${year}-${month}-${day}`;
+        let formatSuffix = '';
+        if (this.currentAspectRatio === '1:1') {
+            formatSuffix = '_square';
+        } else if (this.currentAspectRatio === 'obs-hd') {
+            formatSuffix = '_obs-hd';
         }
-        
-        // Add aspect ratio suffix
-        const formatSuffix = this.currentAspectRatio === '1:1' ? '_square' : '';
-        
-        // Create filename
+        // For OBS overlay, do not use date/time in filename
         let filename = '';
-        
-        if (titleLine1 && dateText) {
-            // Clean the title text for filename
-            const cleanTitle = titleLine1
-                .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove special characters
-                .replace(/\s+/g, '-') // Replace spaces with hyphens
-                .toLowerCase()
-                .substring(0, 30); // Limit length
-            
-            filename = `${cleanTitle}_${dateText}${formatSuffix}.png`;
-        } else if (titleLine1) {
-            const cleanTitle = titleLine1
-                .replace(/[^a-zA-Z0-9\s-]/g, '')
-                .replace(/\s+/g, '-')
-                .toLowerCase()
-                .substring(0, 40);
-            
-            filename = `${cleanTitle}${formatSuffix}.png`;
-        } else if (dateText) {
-            filename = `vers-libre-event_${dateText}${formatSuffix}.png`;
+        if (this.currentAspectRatio === 'obs-hd') {
+            if (titleLine1) {
+                const cleanTitle = titleLine1
+                    .replace(/[^a-zA-Z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .toLowerCase()
+                    .substring(0, 40);
+                filename = `${cleanTitle}${formatSuffix}.png`;
+            } else {
+                filename = `vers-libre-event${formatSuffix}.png`;
+            }
         } else {
-            filename = `vers-libre-event${formatSuffix}.png`;
+            // Get the date
+            if (this.dateInput && this.dateInput.value) {
+                const date = new Date(this.dateInput.value);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                dateText = `${year}-${month}-${day}`;
+            }
+            if (titleLine1 && dateText) {
+                const cleanTitle = titleLine1
+                    .replace(/[^a-zA-Z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .toLowerCase()
+                    .substring(0, 30);
+                filename = `${cleanTitle}_${dateText}${formatSuffix}.png`;
+            } else if (titleLine1) {
+                const cleanTitle = titleLine1
+                    .replace(/[^a-zA-Z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .toLowerCase()
+                    .substring(0, 40);
+                filename = `${cleanTitle}${formatSuffix}.png`;
+            } else if (dateText) {
+                filename = `vers-libre-event_${dateText}${formatSuffix}.png`;
+            } else {
+                filename = `vers-libre-event${formatSuffix}.png`;
+            }
         }
-        
         return filename;
     }
 

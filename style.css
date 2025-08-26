@@ -300,7 +300,7 @@ body.embed-mode .editor-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     background: #fafafa;
     position: relative;
 }
@@ -338,15 +338,24 @@ body.embed-mode .editor-container {
 }
 
 .download-section {
-    margin-top: 16px;
+    margin-top: 0;
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    justify-content: center;
-    padding: 16px;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    justify-content: flex-end;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+}
+
+.download-section.top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    margin: 20px 24px 0 0;
+}
 }
 
 .btn {

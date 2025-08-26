@@ -162,8 +162,9 @@
                     <div class="control-group">
                         <label for="aspectRatio">Canvas Format</label>
                         <select id="aspectRatio" aria-label="Canvas aspect ratio">
-                            <option value="4:5">4:5 (1080×1350) - Vertical</option>
-                            <option value="1:1">1:1 (1080×1080) - Square</option>
+                            <option value="4:5">4:5 (1080×1350) - Vertical (IG)</option>
+                            <option value="1:1">1:1 (1080×1080) - Square (Mixcloud)</option>
+                            <option value="obs-hd">16:9 (1920×1080) - OBS Overlay</option>
                         </select>
                     </div>
                     <div class="control-group scale-control">
@@ -188,22 +189,40 @@
             </div>
 
             <div class="canvas-container">
+                <div class="download-section top-right" id="downloadSection" style="display: none;">
+                    <button class="btn btn-primary" id="downloadBtn" aria-label="Download the generated event image">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                </div>
                 <div id="canvasArea">
                     <div class="empty-state">
                         <div class="empty-state-icon">📸</div>
                         <h4>Upload an image to get started</h4>
                     </div>
                 </div>
-
-                <div class="download-section" id="downloadSection" style="display: none;">
-                    <button class="btn btn-primary" id="downloadBtn" aria-label="Download the generated event image">
-                        Download Image
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
+    <script>
+    // Hide date/time fields for OBS overlay
+    document.addEventListener('DOMContentLoaded', function() {
+        var aspectRatioSelect = document.getElementById('aspectRatio');
+        var dateInput = document.getElementById('dateInput');
+        var startTimeInput = document.getElementById('startTimeInput');
+        var endTimeInput = document.getElementById('endTimeInput');
+        function updateDateTimeVisibility() {
+            var isOBS = aspectRatioSelect.value === 'obs-hd';
+            if (dateInput) dateInput.parentElement.style.display = isOBS ? 'none' : '';
+            if (startTimeInput) startTimeInput.parentElement.style.display = isOBS ? 'none' : '';
+            if (endTimeInput) endTimeInput.parentElement.style.display = isOBS ? 'none' : '';
+        }
+        if (aspectRatioSelect) {
+            aspectRatioSelect.addEventListener('change', updateDateTimeVisibility);
+            updateDateTimeVisibility();
+        }
+    });
+    </script>
 </body>
 </html>
