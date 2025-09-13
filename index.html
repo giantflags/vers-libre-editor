@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vers Libre Image Editor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Radial:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" 
-            integrity="sha384-XXXXX" 
-            crossorigin="anonymous"></script>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" crossorigin="anonymous"></script>
+    <!-- Fabric.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
     <!-- Note: Add proper SRI hash for security -->
 </head>
 <body>
@@ -160,11 +163,12 @@
                 <div class="sidebar-section">
                     <h3>🎛️ Controls</h3>
                     <div class="control-group">
-                        <label for="aspectRatio">Canvas Format</label>
+                        <label for="aspectRatio">Image Format</label>
                         <select id="aspectRatio" aria-label="Canvas aspect ratio">
-                            <option value="4:5">4:5 (1080×1350) - Vertical (IG)</option>
-                            <option value="1:1">1:1 (1080×1080) - Square (Mixcloud)</option>
-                            <option value="obs-hd">16:9 (1920×1080) - OBS Overlay</option>
+                            <option value="9:16">Instagram Story</option>
+                            <option value="4:5">Instagram/Facebook Post</option>
+                            <option value="1:1">Mixcloud Show Image</option>
+                            <option value="obs-hd">Video Stream for OBS</option>
                         </select>
                     </div>
                     <div class="control-group scale-control">
@@ -206,23 +210,94 @@
 
     <script src="script.js"></script>
     <script>
-    // Hide date/time fields for OBS overlay
-    document.addEventListener('DOMContentLoaded', function() {
-        var aspectRatioSelect = document.getElementById('aspectRatio');
-        var dateInput = document.getElementById('dateInput');
-        var startTimeInput = document.getElementById('startTimeInput');
-        var endTimeInput = document.getElementById('endTimeInput');
-        function updateDateTimeVisibility() {
-            var isOBS = aspectRatioSelect.value === 'obs-hd';
-            if (dateInput) dateInput.parentElement.style.display = isOBS ? 'none' : '';
-            if (startTimeInput) startTimeInput.parentElement.style.display = isOBS ? 'none' : '';
-            if (endTimeInput) endTimeInput.parentElement.style.display = isOBS ? 'none' : '';
-        }
-        if (aspectRatioSelect) {
-            aspectRatioSelect.addEventListener('change', updateDateTimeVisibility);
-            updateDateTimeVisibility();
-        }
-    });
-    </script>
-</body>
-</html>
+    <div class="min-h-screen bg-gray-50 flex flex-col font-[Radial]">
+        <div class="flex items-center px-6 py-4 bg-white shadow">
+            <img src="vers-libre-logo.png" alt="Vers Libre" class="h-8 w-8 mr-2" />
+            <h3 class="text-xl font-semibold tracking-tight font-[Radial]">Image Editor</h3>
+        </div>
+        <div class="flex flex-1">
+            <aside class="w-80 bg-white border-r border-gray-200 p-6 flex flex-col gap-6 font-[Radial]">
+                <section>
+                    <h3 class="text-lg font-semibold mb-2 font-[Radial]">📤 Upload</h3>
+                    <div id="uploadArea" class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center cursor-pointer hover:border-blue-400 transition">
+                        <div class="text-3xl mb-2">📤</div>
+                        <p class="font-medium">Click to upload or drag & drop</p>
+                        <p class="text-xs text-gray-400 mt-1">Supports JPG, PNG, GIF, HEIC</p>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*,.heic,.heif" class="hidden" />
+                </section>
+                <section>
+                    <h3 class="text-lg font-semibold mb-2 font-[Radial]">✏️ Text</h3>
+                    <div class="flex flex-col gap-3">
+                        <div>
+                            <label for="titleLine1" class="block text-sm font-medium text-gray-700 mb-1">Line 1</label>
+                            <input type="text" id="titleLine1" placeholder="RADIO SHOW GOES HERE" maxlength="40" aria-label="Event title line 1" class="w-full border rounded px-2 py-1 text-sm" />
+                        </div>
+                        <div>
+                            <label for="titleLine2" class="block text-sm font-medium text-gray-700 mb-1">Line 2</label>
+                            <input type="text" id="titleLine2" placeholder="FEAT. GUEST NAME" maxlength="40" aria-label="Event title line 2" class="w-full border rounded px-2 py-1 text-sm" />
+                        </div>
+                        <div>
+                            <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input type="date" id="dateInput" aria-label="Event date" class="w-full border rounded px-2 py-1 text-sm" />
+                        </div>
+                        <div>
+                            <label for="startTimeInput" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                            <select id="startTimeInput" aria-label="Event start time" class="w-full border rounded px-2 py-1 text-sm">
+                                <option value="">Select start time</option>
+                                ...existing code...
+                            </select>
+                        </div>
+                        <div>
+                            <label for="endTimeInput" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                            <select id="endTimeInput" aria-label="Event end time" class="w-full border rounded px-2 py-1 text-sm">
+                                <option value="">Select end time</option>
+                                ...existing code...
+                            </select>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="text-lg font-semibold mb-2 font-[Radial]">🎛️ Controls</h3>
+                    <div class="flex flex-col gap-3">
+                        <div>
+                            <label for="aspectRatio" class="block text-sm font-medium text-gray-700 mb-1">Image Format</label>
+                            <select id="aspectRatio" aria-label="Canvas aspect ratio" class="w-full border rounded px-2 py-1 text-sm">
+                                <option value="9:16">Instagram Story</option>
+                                <option value="4:5">Instagram/Facebook Post</option>
+                                <option value="1:1">Mixcloud Show Image</option>
+                                <option value="obs-hd">Video Stream for OBS</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="scaleSlider" class="block text-sm font-medium text-gray-700 mb-1">Image Scale</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="scaleSlider" min="50" max="200" value="100" aria-label="Image scale percentage" class="flex-1" />
+                                <span id="scaleValue" class="text-xs">100%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="opacitySlider" class="block text-sm font-medium text-gray-700 mb-1">Gradient Opacity</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="opacitySlider" min="0" max="100" value="30" aria-label="Gradient opacity percentage" class="flex-1" />
+                                <span id="opacityValue" class="text-xs">30%</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+            <main class="flex-1 flex flex-col items-center justify-center p-8">
+                <div class="w-full max-w-2xl bg-white rounded-lg shadow p-4 flex flex-col gap-4">
+                    <div class="flex justify-end">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition" id="downloadBtn" aria-label="Download the generated event image">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </button>
+                    </div>
+                    <div id="canvasArea" class="flex items-center justify-center min-h-[500px] bg-gray-100 rounded-lg">
+                        <!-- Fabric.js canvas will be injected here -->
+                        <canvas id="fabricCanvas" width="1080" height="1350" class="bg-white rounded shadow"></canvas>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
