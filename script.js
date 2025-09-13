@@ -58,6 +58,148 @@ class VersLibreEditor {
     detectEmbedMode() {
         // Check if running in iframe
         const inIframe = window.self !== window.top;
+                    // --- Fabric.js Canvas Initialization ---
+                    document.addEventListener('DOMContentLoaded', function() {
+                                    if (window.fabric) {
+                                                    // Overlay PNGs for each format (use available defaults where present)
+                                                                const overlays = {
+                                                                    '9:16': 'overlays/9_16_overlay.png',
+                                                                    '4:5': 'overlays/4_5_overlay.png',
+                                                                    '1:1': 'overlays/1_1_overlay.png',
+                                                                    'obs-hd': 'Template_HD_OBS.png'
+                                                                };
+                                        const sizes = {
+                                            '9:16': { width: 1080, height: 1920 },
+                                            '4:5': { width: 1080, height: 1350 },
+                                            '1:1': { width: 1080, height: 1080 },
+                                            'obs-hd': { width: 1920, height: 1080 }
+                                        };
+                                        let overlayImgObj = null;
+
+                                        const canvas = new fabric.Canvas('fabricCanvas', {
+                                            backgroundColor: '#fff',
+                                            preserveObjectStacking: true
+                                        });
+
+                                                    function setCanvasFormat(format) {
+                                            const size = sizes[format] || sizes['4:5'];
+                                            canvas.setWidth(size.width);
+                                            canvas.setHeight(size.height);
+                                                                            // Remove previous overlay
+                                                                            if (overlayImgObj) {
+                                                                                canvas.remove(overlayImgObj);
+                                                                                overlayImgObj = null;
+                                                                            }
+                                                                            // Add new overlay
+                                                                            const overlaySrc = overlays[format];
+                                                                            if (overlaySrc) {
+                                                                                // Preload to detect 404 and handle errors gracefully
+                                                                                const preImg = new window.Image();
+                                                                                preImg.onload = function() {
+                                                                                    fabric.Image.fromURL(overlaySrc, function(img) {
+                                                                                        img.set({ left: 0, top: 0, selectable: false, evented: false, opacity: 0.5 });
+                                                                                        img.scaleToWidth(size.width);
+                                                                                        img.scaleToHeight(size.height);
+                                                                                        overlayImgObj = img;
+                                                                                        canvas.add(img);
+                                                                                        overlayImgObj.moveTo(canvas.getObjects().length - 1); // Always top layer
+                                                                                        canvas.requestRenderAll();
+                                                                                    }, { crossOrigin: 'anonymous' });
+                                                                                };
+                                                                                preImg.onerror = function() {
+                                                                                    console.warn('Overlay not found for format', format, 'at', overlaySrc);
+                                                                                    // Add error text to canvas for visibility
+                                                                                    const errorText = new fabric.Text('Overlay not found: ' + overlaySrc, {
+                                                                                        left: 20,
+                                                                                        top: 20,
+                                                                                        fontSize: 24,
+                                                                                        fill: 'red',
+                                                                                        selectable: false,
+                                                                                        evented: false
+                                                                                    });
+                                                                                    canvas.add(errorText);
+                                                                                    canvas.requestRenderAll();
+                                                                                };
+                                                                                preImg.src = overlaySrc;
+                                                                            }
+                        // Always reload overlay after image upload
+                        canvas.on('object:added', function(e) {
+                            if (overlayImgObj) {
+                                overlayImgObj.moveTo(canvas.getObjects().length - 1);
+                                canvas.requestRenderAll();
+                            }
+                        });
+                                        }
+
+                                        // Initial format
+                                        const aspectRatioSelect = document.getElementById('aspectRatio');
+                                        let currentFormat = aspectRatioSelect ? aspectRatioSelect.value : '4:5';
+                                        setCanvasFormat(currentFormat);
+
+                                        if (aspectRatioSelect) {
+                                            aspectRatioSelect.addEventListener('change', function() {
+                                                currentFormat = aspectRatioSelect.value;
+                                                setCanvasFormat(currentFormat);
+                                            });
+                                        }
+
+                                                    // Add demo text object
+                                        const text = new fabric.Text('Edit Me!', {
+                                            left: 100,
+                                            top: 100,
+                                            fontSize: 48,
+                                            fill: '#222',
+                                            fontFamily: 'Inter',
+                                            editable: true
+                                        });
+                                        canvas.add(text);
+
+                                                                // Ensure overlay stays on top when new objects are added
+                                                                canvas.on('object:added', function(e) {
+                                                                    if (overlayImgObj) {
+                                                                        overlayImgObj.moveTo(canvas.getObjects().length - 1);
+                                                                        canvas.requestRenderAll();
+                                                                    }
+                                                                });
+
+                                        // Add image from upload
+                                        const imageInput = document.getElementById('imageInput');
+                                        if (imageInput) {
+                                            imageInput.addEventListener('change', function(e) {
+                                                const file = e.target.files[0];
+                                                if (!file) return;
+                                                const reader = new FileReader();
+                                                reader.onload = function(f) {
+                                                    fabric.Image.fromURL(f.target.result, function(img) {
+                                                        img.set({ left: 200, top: 200, scaleX: 0.5, scaleY: 0.5 });
+                                                        canvas.add(img);
+                                                        canvas.setActiveObject(img);
+                                                    });
+                                                };
+                                                reader.readAsDataURL(file);
+                                            });
+                                            // Click to trigger file input
+                                            const uploadArea = document.getElementById('uploadArea');
+                                            if (uploadArea) {
+                                                uploadArea.addEventListener('click', function() {
+                                                    imageInput.click();
+                                                });
+                                            }
+                                        }
+
+                                        // Download button
+                                        const downloadBtn = document.getElementById('downloadBtn');
+                                        if (downloadBtn) {
+                                            downloadBtn.addEventListener('click', function() {
+                                                const dataURL = canvas.toDataURL({ format: 'png' });
+                                                const link = document.createElement('a');
+                                                link.href = dataURL;
+                                                link.download = 'vers-libre-image.png';
+                                                link.click();
+                                            });
+                                        }
+                                    }
+                    });
         
         // Check URL parameters for embed mode
         const urlParams = new URLSearchParams(window.location.search);
@@ -246,8 +388,8 @@ class VersLibreEditor {
         this.canvas.addEventListener('mouseleave', mouseUpHandler);
 
         // Touch events for mobile
-        this.canvas.addEventListener('touchstart', touchStartHandler);
-        this.canvas.addEventListener('touchmove', touchMoveHandler);
+    this.canvas.addEventListener('touchstart', touchStartHandler, { passive: true });
+    this.canvas.addEventListener('touchmove', touchMoveHandler, { passive: true });
         this.canvas.addEventListener('touchend', touchEndHandler);
 
         // Accessibility
@@ -836,26 +978,29 @@ class VersLibreEditor {
     }
 
     drawVersLibreLogo() {
+        if (!this.showLogo) return;
         if (!this.logoImage || !this.logoImage.complete) {
-            // Fallback: draw programmatic logo if image isn't loaded
             this.drawFallbackLogo();
             return;
         }
-
         const width = this.canvas.width;
         const height = this.canvas.height;
-        
-        const paddingLeft = width * this.LOGO_LEFT_PERCENT;
-        const paddingTop = height * this.LOGO_TOP_PERCENT;
+        let logoX, logoY;
         const logoWidth = width * this.LOGO_WIDTH_PERCENT;
         const logoHeight = (logoWidth / this.logoImage.width) * this.logoImage.height;
-
-        // Logo positioned at specified percentages
-
+        if (this.currentAspectRatio === 'obs-hd') {
+            // Position logo at right: 5%, top: 5%
+            logoX = width - (width * this.LOGO_RIGHT_PERCENT) - logoWidth;
+            logoY = height * this.LOGO_TOP_PERCENT;
+        } else {
+            // Default: use left/top percentages
+            logoX = width * this.LOGO_LEFT_PERCENT;
+            logoY = height * this.LOGO_TOP_PERCENT;
+        }
         this.ctx.drawImage(
             this.logoImage,
-            paddingLeft,
-            paddingTop,
+            logoX,
+            logoY,
             logoWidth,
             logoHeight
         );
@@ -935,6 +1080,8 @@ class VersLibreEditor {
     }
 
     drawDateTime() {
+        // Hide date/time for OBS
+        if (this.currentAspectRatio === 'obs-hd') return;
         let dateTimeText = '';
         
         // Check if using new separate date/start time/end time inputs
@@ -1046,15 +1193,41 @@ class VersLibreEditor {
             this.TEXT_LINE1_Y = 950;
             this.TEXT_LINE2_Y = 990;
             this.TEXT_DATETIME_Y = 1030;
+            this.showLogo = true;
+            // Set logo position for 1:1
+            this.LOGO_LEFT_PERCENT = 0.12;
+            this.LOGO_TOP_PERCENT = 0.05;
+            this.LOGO_WIDTH_PERCENT = 0.09;
+            this.LOGO_RIGHT_PERCENT = null;
+        } else if (this.currentAspectRatio === '9:16') {
+            // Instagram Story format
+            this.CANVAS_WIDTH = 1080;
+            this.CANVAS_HEIGHT = 1920;
+            this.TEXT_LINE1_Y = 1320;
+            this.TEXT_LINE2_Y = 1370;
+            this.TEXT_DATETIME_Y = 1420;
+            this.showLogo = false;
+            // Set logo position for 9:16 (if ever shown)
+            this.LOGO_LEFT_PERCENT = 0.12;
+            this.LOGO_TOP_PERCENT = 0.05;
+            this.LOGO_WIDTH_PERCENT = 0.09;
+            this.LOGO_RIGHT_PERCENT = null;
         } else if (this.currentAspectRatio === 'obs-hd') {
             // OBS Overlay HD format
             this.CANVAS_WIDTH = 1920;
             this.CANVAS_HEIGHT = 1080;
-            // Adjust text positions for HD overlay (example values, can be tweaked)
-            this.TEXT_LINE1_Y = 900;
-            this.TEXT_LINE2_Y = 950;
-            this.TEXT_DATETIME_Y = 1000;
-            // Increase preview size by 30%
+            this.showLogo = true;
+            if (this.dateInput) this.dateInput.style.display = 'none';
+            if (this.startTimeInput) this.startTimeInput.style.display = 'none';
+            if (this.endTimeInput) this.endTimeInput.style.display = 'none';
+            this.TEXT_LINE2_Y = this.CANVAS_HEIGHT - Math.round(this.CANVAS_HEIGHT * 0.05);
+            this.TEXT_LINE1_Y = this.TEXT_LINE2_Y - 50;
+            this.TEXT_DATETIME_Y = null;
+            // OBS logo: right 5%, top 5%, width 5% of canvas width
+            this.LOGO_LEFT_PERCENT = null;
+            this.LOGO_RIGHT_PERCENT = 0.05;
+            this.LOGO_TOP_PERCENT = 0.05;
+            this.LOGO_WIDTH_PERCENT = 0.05;
             setTimeout(() => {
                 const canvas = document.getElementById('canvas');
                 if (canvas) {
@@ -1068,7 +1241,18 @@ class VersLibreEditor {
             this.TEXT_LINE1_Y = 1220;
             this.TEXT_LINE2_Y = 1260;
             this.TEXT_DATETIME_Y = 1300;
+            this.showLogo = true;
+            // Set logo position for 4:5
+            this.LOGO_LEFT_PERCENT = 0.12;
+            this.LOGO_TOP_PERCENT = 0.05;
+            this.LOGO_WIDTH_PERCENT = 0.09;
+            this.LOGO_RIGHT_PERCENT = null;
         }
+        
+        // Show date/time for non-OBS formats
+        if (this.dateInput) this.dateInput.style.display = '';
+        if (this.startTimeInput) this.startTimeInput.style.display = '';
+        if (this.endTimeInput) this.endTimeInput.style.display = '';
     }
 
     generateFilename() {
