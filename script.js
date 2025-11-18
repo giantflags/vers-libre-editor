@@ -79,12 +79,41 @@ class VersLibreEditor {
         this.bindEvents();
         this.updateOpacityDisplay();
         this.updateScaleDisplay();
+        this.populateTimeSelects(); // Dynamically generate time options
         this.loadLogo();
         this.initializeFontLoading();
-        
+
         // Apply embed mode styling if needed
         if (this.isEmbedded) {
             this.applyEmbedMode();
+        }
+    }
+
+    /**
+     * Populates time select dropdowns with options (replaces 200+ lines of HTML)
+     */
+    populateTimeSelects() {
+        const times = [];
+
+        // Generate time options in 30-minute intervals
+        for (let hour = 0; hour < 24; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const h = String(hour).padStart(2, '0');
+                const m = String(minute).padStart(2, '0');
+                times.push(`${h}:${m}`);
+            }
+        }
+
+        // Populate start time select
+        if (this.startTimeInput) {
+            this.startTimeInput.innerHTML = '<option value="">Select start time</option>' +
+                times.map(t => `<option value="${t}">${t}</option>`).join('');
+        }
+
+        // Populate end time select
+        if (this.endTimeInput) {
+            this.endTimeInput.innerHTML = '<option value="">Select end time</option>' +
+                times.map(t => `<option value="${t}">${t}</option>`).join('');
         }
     }
 
