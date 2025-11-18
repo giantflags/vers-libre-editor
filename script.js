@@ -1,25 +1,55 @@
 class VersLibreEditor {
+    // Configuration constants (extracted magic numbers for better maintainability)
+    static CONSTANTS = {
+        // File upload limits
+        MAX_FILE_SIZE_MB: 10,
+        MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024, // 10MB in bytes
+
+        // Performance tuning
+        DEBOUNCE_DELAY_MS: 150, // Delay for text input debouncing
+        MOBILE_BREAKPOINT: 768, // Screen width for mobile detection
+
+        // Canvas display sizes
+        MOBILE_CANVAS_WIDTH: 320, // Max width for mobile display
+        MOBILE_CANVAS_PADDING: 40, // Padding for mobile canvas
+        DESKTOP_CANVAS_WIDTH: 400, // Width for desktop display
+
+        // Rendering configuration
+        GRADIENT_HEIGHT_PERCENT: 0.4, // Bottom 40% of canvas for gradient
+        HEIC_CONVERSION_QUALITY: 0.8, // JPEG quality for HEIC conversion
+        PNG_EXPORT_QUALITY: 1.0, // Full quality for PNG export
+
+        // UI timing
+        ERROR_MESSAGE_DURATION_MS: 5000, // How long error messages display
+        INSTRUCTION_HIDE_DELAY_MS: 3000, // Auto-hide positioning instructions
+        INSTRUCTION_FADE_DURATION_MS: 500, // Fade animation duration
+        BRIEF_INSTRUCTION_DURATION_MS: 1500, // Brief instruction display time
+
+        // Touch/interaction
+        MIN_TOUCH_TARGET_PX: 44, // Minimum touch target size (accessibility)
+    };
+
     constructor() {
         this.canvas = null;
         this.ctx = null;
         this.image = null;
         this.logoImage = null;
         this.cleanupFunctions = [];
-        
+
         // Constants - will be updated based on aspect ratio
         this.currentAspectRatio = '4:5'; // Default to 4:5
         this.CANVAS_WIDTH = 1080;
         this.CANVAS_HEIGHT = 1350;
-        this.LOGO_LEFT_PERCENT = 0.12;
-        this.LOGO_TOP_PERCENT = 0.05;
-        this.LOGO_WIDTH_PERCENT = 0.09;
+        this.LOGO_LEFT_PERCENT = 0.12; // 12% from left
+        this.LOGO_TOP_PERCENT = 0.05; // 5% from top
+        this.LOGO_WIDTH_PERCENT = 0.09; // 9% of canvas width
         this.TEXT_X = 130;
         this.TEXT_LINE1_Y = 1220;
         this.TEXT_LINE2_Y = 1260;
         this.TEXT_DATETIME_Y = 1300;
         this.FONT_SIZE = '30pt';
         this.DATETIME_FONT_SIZE = '26pt'; // 4px smaller than main text
-        this.MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        this.MAX_FILE_SIZE = VersLibreEditor.CONSTANTS.MAX_FILE_SIZE_BYTES;
         
         // Font configuration
         this.fontFamily = 'Radial Regular, "Radial-Regular", RadialRegular, Arial, sans-serif';
@@ -39,6 +69,13 @@ class VersLibreEditor {
         this.isEmbedded = this.detectEmbedMode();
         
         this.initializeElements();
+
+        // Create debounced update handler for better performance
+        this.debouncedUpdatePreview = this.debounce(
+            this.updatePreview.bind(this),
+            VersLibreEditor.CONSTANTS.DEBOUNCE_DELAY_MS
+        );
+
         this.bindEvents();
         this.updateOpacityDisplay();
         this.updateScaleDisplay();
@@ -52,159 +89,17 @@ class VersLibreEditor {
     }
 
     detectMobile() {
-        return window.innerWidth <= 768;
+        return window.innerWidth <= VersLibreEditor.CONSTANTS.MOBILE_BREAKPOINT;
     }
 
     detectEmbedMode() {
         // Check if running in iframe
         const inIframe = window.self !== window.top;
-                    // --- Fabric.js Canvas Initialization ---
-                    document.addEventListener('DOMContentLoaded', function() {
-                                    if (window.fabric) {
-                                                    // Overlay PNGs for each format (use available defaults where present)
-                                                                const overlays = {
-                                                                    '9:16': 'overlays/9_16_overlay.png',
-                                                                    '4:5': 'overlays/4_5_overlay.png',
-                                                                    '1:1': 'overlays/1_1_overlay.png',
-                                                                    'obs-hd': 'Template_HD_OBS.png'
-                                                                };
-                                        const sizes = {
-                                            '9:16': { width: 1080, height: 1920 },
-                                            '4:5': { width: 1080, height: 1350 },
-                                            '1:1': { width: 1080, height: 1080 },
-                                            'obs-hd': { width: 1920, height: 1080 }
-                                        };
-                                        let overlayImgObj = null;
 
-                                        const canvas = new fabric.Canvas('fabricCanvas', {
-                                            backgroundColor: '#fff',
-                                            preserveObjectStacking: true
-                                        });
-
-                                                    function setCanvasFormat(format) {
-                                            const size = sizes[format] || sizes['4:5'];
-                                            canvas.setWidth(size.width);
-                                            canvas.setHeight(size.height);
-                                                                            // Remove previous overlay
-                                                                            if (overlayImgObj) {
-                                                                                canvas.remove(overlayImgObj);
-                                                                                overlayImgObj = null;
-                                                                            }
-                                                                            // Add new overlay
-                                                                            const overlaySrc = overlays[format];
-                                                                            if (overlaySrc) {
-                                                                                // Preload to detect 404 and handle errors gracefully
-                                                                                const preImg = new window.Image();
-                                                                                preImg.onload = function() {
-                                                                                    fabric.Image.fromURL(overlaySrc, function(img) {
-                                                                                        img.set({ left: 0, top: 0, selectable: false, evented: false, opacity: 0.5 });
-                                                                                        img.scaleToWidth(size.width);
-                                                                                        img.scaleToHeight(size.height);
-                                                                                        overlayImgObj = img;
-                                                                                        canvas.add(img);
-                                                                                        overlayImgObj.moveTo(canvas.getObjects().length - 1); // Always top layer
-                                                                                        canvas.requestRenderAll();
-                                                                                    }, { crossOrigin: 'anonymous' });
-                                                                                };
-                                                                                preImg.onerror = function() {
-                                                                                    console.warn('Overlay not found for format', format, 'at', overlaySrc);
-                                                                                    // Add error text to canvas for visibility
-                                                                                    const errorText = new fabric.Text('Overlay not found: ' + overlaySrc, {
-                                                                                        left: 20,
-                                                                                        top: 20,
-                                                                                        fontSize: 24,
-                                                                                        fill: 'red',
-                                                                                        selectable: false,
-                                                                                        evented: false
-                                                                                    });
-                                                                                    canvas.add(errorText);
-                                                                                    canvas.requestRenderAll();
-                                                                                };
-                                                                                preImg.src = overlaySrc;
-                                                                            }
-                        // Always reload overlay after image upload
-                        canvas.on('object:added', function(e) {
-                            if (overlayImgObj) {
-                                overlayImgObj.moveTo(canvas.getObjects().length - 1);
-                                canvas.requestRenderAll();
-                            }
-                        });
-                                        }
-
-                                        // Initial format
-                                        const aspectRatioSelect = document.getElementById('aspectRatio');
-                                        let currentFormat = aspectRatioSelect ? aspectRatioSelect.value : '4:5';
-                                        setCanvasFormat(currentFormat);
-
-                                        if (aspectRatioSelect) {
-                                            aspectRatioSelect.addEventListener('change', function() {
-                                                currentFormat = aspectRatioSelect.value;
-                                                setCanvasFormat(currentFormat);
-                                            });
-                                        }
-
-                                                    // Add demo text object
-                                        const text = new fabric.Text('Edit Me!', {
-                                            left: 100,
-                                            top: 100,
-                                            fontSize: 48,
-                                            fill: '#222',
-                                            fontFamily: 'Inter',
-                                            editable: true
-                                        });
-                                        canvas.add(text);
-
-                                                                // Ensure overlay stays on top when new objects are added
-                                                                canvas.on('object:added', function(e) {
-                                                                    if (overlayImgObj) {
-                                                                        overlayImgObj.moveTo(canvas.getObjects().length - 1);
-                                                                        canvas.requestRenderAll();
-                                                                    }
-                                                                });
-
-                                        // Add image from upload
-                                        const imageInput = document.getElementById('imageInput');
-                                        if (imageInput) {
-                                            imageInput.addEventListener('change', function(e) {
-                                                const file = e.target.files[0];
-                                                if (!file) return;
-                                                const reader = new FileReader();
-                                                reader.onload = function(f) {
-                                                    fabric.Image.fromURL(f.target.result, function(img) {
-                                                        img.set({ left: 200, top: 200, scaleX: 0.5, scaleY: 0.5 });
-                                                        canvas.add(img);
-                                                        canvas.setActiveObject(img);
-                                                    });
-                                                };
-                                                reader.readAsDataURL(file);
-                                            });
-                                            // Click to trigger file input
-                                            const uploadArea = document.getElementById('uploadArea');
-                                            if (uploadArea) {
-                                                uploadArea.addEventListener('click', function() {
-                                                    imageInput.click();
-                                                });
-                                            }
-                                        }
-
-                                        // Download button
-                                        const downloadBtn = document.getElementById('downloadBtn');
-                                        if (downloadBtn) {
-                                            downloadBtn.addEventListener('click', function() {
-                                                const dataURL = canvas.toDataURL({ format: 'png' });
-                                                const link = document.createElement('a');
-                                                link.href = dataURL;
-                                                link.download = 'vers-libre-image.png';
-                                                link.click();
-                                            });
-                                        }
-                                    }
-                    });
-        
         // Check URL parameters for embed mode
         const urlParams = new URLSearchParams(window.location.search);
         const embedParam = urlParams.get('embed');
-        
+
         return inIframe || embedParam === 'true';
     }
 
@@ -325,17 +220,17 @@ class VersLibreEditor {
             () => this.imageInput.removeEventListener('change', changeHandler)
         );
 
-        // Text input events - support both old and new structure
-        if (this.titleLine1) this.titleLine1.addEventListener('input', this.updatePreview.bind(this));
-        if (this.titleLine2) this.titleLine2.addEventListener('input', this.updatePreview.bind(this));
-        
-        // New separate inputs
-        if (this.dateInput) this.dateInput.addEventListener('input', this.updatePreview.bind(this));
+        // Text input events - use debounced updates for better performance
+        if (this.titleLine1) this.titleLine1.addEventListener('input', this.debouncedUpdatePreview);
+        if (this.titleLine2) this.titleLine2.addEventListener('input', this.debouncedUpdatePreview);
+
+        // New separate inputs - debounce date input, immediate for time selects
+        if (this.dateInput) this.dateInput.addEventListener('input', this.debouncedUpdatePreview);
         if (this.startTimeInput) this.startTimeInput.addEventListener('change', this.updatePreview.bind(this));
         if (this.endTimeInput) this.endTimeInput.addEventListener('change', this.updatePreview.bind(this));
-        
+
         // Old combined input (fallback)
-        if (this.dateTime) this.dateTime.addEventListener('input', this.updatePreview.bind(this));
+        if (this.dateTime) this.dateTime.addEventListener('input', this.debouncedUpdatePreview);
 
         // Image scaling events
         if (this.scaleSlider) {
@@ -584,7 +479,7 @@ class VersLibreEditor {
             if (errorDiv.parentNode) {
                 errorDiv.parentNode.removeChild(errorDiv);
             }
-        }, 5000);
+        }, VersLibreEditor.CONSTANTS.ERROR_MESSAGE_DURATION_MS);
     }
 
     showProgressMessage(message) {
@@ -687,7 +582,7 @@ class VersLibreEditor {
         heic2any({
             blob: file,
             toType: "image/jpeg",
-            quality: 0.8
+            quality: VersLibreEditor.CONSTANTS.HEIC_CONVERSION_QUALITY
         }).then((convertedBlob) => {
             this.hideProgressMessage();
             
@@ -779,7 +674,10 @@ class VersLibreEditor {
         this.canvas.height = this.CANVAS_HEIGHT;
         
         // Responsive display size that maintains current aspect ratio
-        const displayWidth = this.isMobile ? Math.min(320, window.innerWidth - 40) : 400;
+        const displayWidth = this.isMobile
+            ? Math.min(VersLibreEditor.CONSTANTS.MOBILE_CANVAS_WIDTH,
+                      window.innerWidth - VersLibreEditor.CONSTANTS.MOBILE_CANVAS_PADDING)
+            : VersLibreEditor.CONSTANTS.DESKTOP_CANVAS_WIDTH;
         const aspectRatio = this.CANVAS_HEIGHT / this.CANVAS_WIDTH;
         const displayHeight = displayWidth * aspectRatio;
         
@@ -831,7 +729,7 @@ class VersLibreEditor {
         
         this.canvasArea.appendChild(wrapper);
         
-        // Auto-hide instructions after 3 seconds
+        // Auto-hide instructions after configured delay
         setTimeout(() => {
             instructions.style.opacity = '0';
             // Remove from DOM after fade out
@@ -839,8 +737,8 @@ class VersLibreEditor {
                 if (instructions.parentNode) {
                     instructions.parentNode.removeChild(instructions);
                 }
-            }, 500);
-        }, 3000);
+            }, VersLibreEditor.CONSTANTS.INSTRUCTION_FADE_DURATION_MS);
+        }, VersLibreEditor.CONSTANTS.INSTRUCTION_HIDE_DELAY_MS);
         
         // Show instructions again when user starts dragging
         this.setupInstructionReappearance(wrapper);
@@ -888,7 +786,7 @@ class VersLibreEditor {
             briefInstructions.textContent = 'Repositioning...';
             wrapper.appendChild(briefInstructions);
             
-            // Hide after 1.5 seconds
+            // Hide after configured delay
             instructionTimer = setTimeout(() => {
                 briefInstructions.style.opacity = '0';
                 setTimeout(() => {
@@ -896,7 +794,7 @@ class VersLibreEditor {
                         briefInstructions.parentNode.removeChild(briefInstructions);
                     }
                 }, 300);
-            }, 1500);
+            }, VersLibreEditor.CONSTANTS.BRIEF_INSTRUCTION_DURATION_MS);
         };
         
         // Store reference for use in mouse events
@@ -965,7 +863,7 @@ class VersLibreEditor {
     drawBottomGradient() {
         const width = this.canvas.width;
         const height = this.canvas.height;
-        const gradientHeight = height * 0.4; // Bottom 40% for better text readability
+        const gradientHeight = height * VersLibreEditor.CONSTANTS.GRADIENT_HEIGHT_PERCENT;
         const opacity = this.opacitySlider.value / 100;
 
         // Create gradient from transparent to black
@@ -1094,10 +992,17 @@ class VersLibreEditor {
             let dateText = '';
             if (dateValue) {
                 const date = new Date(dateValue);
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = String(date.getFullYear()).slice(-2);
-                dateText = `${day}.${month}.${year}`;
+
+                // Validate date - check if parsing was successful
+                if (isNaN(date.getTime())) {
+                    console.warn('Invalid date value:', dateValue);
+                    // Skip date formatting if invalid
+                } else {
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = String(date.getFullYear()).slice(-2);
+                    dateText = `${day}.${month}.${year}`;
+                }
             }
             
             if (dateText) {
@@ -1153,6 +1058,11 @@ class VersLibreEditor {
         try {
             await document.fonts.ready;
             this.checkFontLoading();
+
+            // Re-render canvas if it exists and image is loaded to apply custom font
+            if (this.canvas && this.image) {
+                this.updatePreview();
+            }
         } catch (error) {
             // Font loading failed, use fallback
             this.fontFamily = 'Arial, sans-serif';
@@ -1316,7 +1226,7 @@ class VersLibreEditor {
         try {
             // Create download link
             const link = document.createElement('a');
-            const dataURL = this.canvas.toDataURL('image/png', 1.0);
+            const dataURL = this.canvas.toDataURL('image/png', VersLibreEditor.CONSTANTS.PNG_EXPORT_QUALITY);
             const filename = this.generateFilename();
             
             // iOS Safari workaround - open in new window if direct download fails
