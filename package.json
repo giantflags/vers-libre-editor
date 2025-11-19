@@ -1,13 +1,64 @@
 {
-  "name": "vers-libre-editor-2",
-  "version": "1.0.0",
-  "description": "Vers Libre Image Editor - Canvas-based event poster creator",
-  "main": "script.js",
+  "name": "@librai/vers-libre-editor",
+  "version": "2.0.0",
+  "description": "Vers Libre Image Editor - Canvas-based event poster creator component",
+  "type": "module",
+  "main": "./dist/vers-libre-editor.umd.js",
+  "module": "./dist/vers-libre-editor.es.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/vers-libre-editor.es.js",
+      "require": "./dist/vers-libre-editor.umd.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./css": "./dist/vers-libre-editor.css",
+    "./react": "./dist/react/index.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
-    "build:css": "npx tailwindcss -i ./style.css -o ./dist/tailwind.css --watch"
+    "dev": "vite",
+    "build": "vite build",
+    "build:css": "npx tailwindcss -i ./style.css -o ./dist/tailwind.css --watch",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "tailwindcss": "^3.3.0",
     "autoprefixer": "^10.4.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "image-editor",
+    "canvas",
+    "event-graphics",
+    "poster-maker",
+    "component-library",
+    "react"
+  ],
+  "author": "Librai",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giantflags/vers-libre-editor"
   }
 }
