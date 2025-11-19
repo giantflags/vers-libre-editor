@@ -1,4 +1,4 @@
-const h = {
+const g = {
   // File upload limits
   MAX_FILE_SIZE_MB: 10,
   MAX_FILE_SIZE_BYTES: 10485760,
@@ -42,7 +42,7 @@ const h = {
   // Maximum characters for title lines
   MAX_FILENAME_LENGTH: 40
   // Maximum length for generated filenames
-}, m = {
+}, p = {
   "4:5": {
     width: 1080,
     height: 1350,
@@ -110,7 +110,7 @@ const h = {
       widthPercent: 0.05
     }
   }
-}, w = {
+}, M = {
   family: 'Radial Regular, "Radial-Regular", RadialRegular, Arial, sans-serif',
   fallback: "Arial, sans-serif",
   variations: ["Radial Regular", "Radial-Regular", "RadialRegular"],
@@ -118,7 +118,7 @@ const h = {
     main: "30pt",
     dateTime: "26pt"
   }
-}, d = {
+}, c = {
   errors: {
     noFile: "No file provided",
     fileTooLarge: "File size too large (max 10MB)",
@@ -138,7 +138,7 @@ const h = {
     repositioning: "Repositioning..."
   }
 };
-class I {
+class E {
   constructor() {
     this.state = {
       // Canvas and image
@@ -240,7 +240,7 @@ class I {
    * @param {string} format - Format key ('4:5', '9:16', etc.)
    */
   setFormat(e) {
-    const t = m[e];
+    const t = p[e];
     if (!t) return;
     const i = {
       currentFormat: e,
@@ -255,31 +255,31 @@ class I {
    * @returns {Object} Format configuration object
    */
   getFormatConfig() {
-    return m[this.state.currentFormat];
+    return p[this.state.currentFormat];
   }
 }
-function S(s) {
-  if (!s)
-    return { valid: !1, error: d.errors.noFile };
-  if (s.size > h.MAX_FILE_SIZE_BYTES)
-    return { valid: !1, error: d.errors.fileTooLarge };
-  const e = h.VALID_IMAGE_TYPES.includes(s.type), t = h.VALID_IMAGE_EXTENSIONS.some(
-    (i) => s.name.toLowerCase().endsWith(i)
+function y(o) {
+  if (!o)
+    return { valid: !1, error: c.errors.noFile };
+  if (o.size > g.MAX_FILE_SIZE_BYTES)
+    return { valid: !1, error: c.errors.fileTooLarge };
+  const e = g.VALID_IMAGE_TYPES.includes(o.type), t = g.VALID_IMAGE_EXTENSIONS.some(
+    (i) => o.name.toLowerCase().endsWith(i)
   );
-  return !e && !t ? { valid: !1, error: d.errors.invalidType } : { valid: !0 };
+  return !e && !t ? { valid: !1, error: c.errors.invalidType } : { valid: !0 };
 }
-function T(s) {
-  if (!s || !s.trim())
+function b(o) {
+  if (!o || !o.trim())
     return { valid: !1 };
-  const e = new Date(s);
-  return isNaN(e.getTime()) ? (console.warn("Invalid date value:", s), { valid: !1 }) : { valid: !0, date: e };
+  const e = new Date(o);
+  return isNaN(e.getTime()) ? (console.warn("Invalid date value:", o), { valid: !1 }) : { valid: !0, date: e };
 }
-function E(s) {
-  if (!s) return !1;
-  const e = s.name.toLowerCase();
+function L(o) {
+  if (!o) return !1;
+  const e = o.name.toLowerCase();
   return e.endsWith(".heic") || e.endsWith(".heif");
 }
-class v {
+class w {
   /**
    * Loads an image file, handling HEIC conversion if needed
    * @param {File} file - The image file to load
@@ -289,16 +289,16 @@ class v {
    * @param {Function} callbacks.onSuccess - Called with loaded HTMLImageElement
    * @returns {Promise<void>}
    */
-  static async loadImage(e, { onProgress: t, onError: i, onSuccess: a }) {
+  static async loadImage(e, { onProgress: t, onError: i, onSuccess: s }) {
     try {
-      const n = S(e);
-      if (!n.valid) {
-        i(n.error);
+      const a = y(e);
+      if (!a.valid) {
+        i(a.error);
         return;
       }
-      E(e) ? await this.loadHeicImage(e, { onProgress: t, onError: i, onSuccess: a }) : await this.loadRegularImage(e, { onError: i, onSuccess: a });
-    } catch (n) {
-      i(`${d.errors.imageLoadFailed}: ${n.message}`);
+      L(e) ? await this.loadHeicImage(e, { onProgress: t, onError: i, onSuccess: s }) : await this.loadRegularImage(e, { onError: i, onSuccess: s });
+    } catch (a) {
+      i(`${c.errors.imageLoadFailed}: ${a.message}`);
     }
   }
   /**
@@ -307,27 +307,27 @@ class v {
    * @param {Object} callbacks - Callback functions
    * @returns {Promise<void>}
    */
-  static async loadHeicImage(e, { onProgress: t, onError: i, onSuccess: a }) {
+  static async loadHeicImage(e, { onProgress: t, onError: i, onSuccess: s }) {
     if (typeof heic2any > "u") {
-      i(d.errors.heicNotSupported);
+      i(c.errors.heicNotSupported);
       return;
     }
     try {
-      t(d.progress.convertingHeic);
-      const n = await heic2any({
+      t(c.progress.convertingHeic);
+      const a = await heic2any({
         blob: e,
         toType: "image/jpeg",
-        quality: h.HEIC_CONVERSION_QUALITY
+        quality: g.HEIC_CONVERSION_QUALITY
       });
       t(null);
-      const r = new File(
-        [n],
+      const n = new File(
+        [a],
         e.name.replace(/\.heic$/i, ".jpg"),
         { type: "image/jpeg" }
       );
-      await this.loadRegularImage(r, { onError: i, onSuccess: a });
-    } catch (n) {
-      t(null), i(`${d.errors.heicConversionFailed}: ${n.message}`);
+      await this.loadRegularImage(n, { onError: i, onSuccess: s });
+    } catch (a) {
+      t(null), i(`${c.errors.heicConversionFailed}: ${a.message}`);
     }
   }
   /**
@@ -337,20 +337,20 @@ class v {
    * @returns {Promise<HTMLImageElement>}
    */
   static async loadRegularImage(e, { onError: t, onSuccess: i }) {
-    return new Promise((a, n) => {
-      const r = new FileReader();
-      r.onload = (o) => {
+    return new Promise((s, a) => {
+      const n = new FileReader();
+      n.onload = (r) => {
         const l = new Image();
         l.onload = () => {
-          i(l), a(l);
+          i(l), s(l);
         }, l.onerror = () => {
-          const c = d.errors.imageLoadFailed;
-          t(c), n(new Error(c));
-        }, l.src = o.target.result;
-      }, r.onerror = () => {
-        const o = d.errors.fileReadFailed;
-        t(o), n(new Error(o));
-      }, r.readAsDataURL(e);
+          const h = c.errors.imageLoadFailed;
+          t(h), a(new Error(h));
+        }, l.src = r.target.result;
+      }, n.onerror = () => {
+        const r = c.errors.fileReadFailed;
+        t(r), a(new Error(r));
+      }, n.readAsDataURL(e);
     });
   }
   /**
@@ -360,54 +360,54 @@ class v {
    */
   static async loadLogo(e = "./vers-libre-logo.png") {
     return new Promise((t, i) => {
-      const a = new Image();
-      a.onload = () => {
-        t(a);
-      }, a.onerror = () => {
+      const s = new Image();
+      s.onload = () => {
+        t(s);
+      }, s.onerror = () => {
         console.warn("Failed to load logo image, will use fallback"), t(null);
-      }, a.src = e;
+      }, s.src = e;
     });
   }
 }
-function y(s) {
-  if (!s) return "";
-  const e = T(s);
+function x(o) {
+  if (!o) return "";
+  const e = b(o);
   if (!e.valid) return "";
-  const t = e.date, i = String(t.getDate()).padStart(2, "0"), a = String(t.getMonth() + 1).padStart(2, "0"), n = String(t.getFullYear()).slice(-2);
-  return `${i}.${a}.${n}`;
+  const t = e.date, i = String(t.getDate()).padStart(2, "0"), s = String(t.getMonth() + 1).padStart(2, "0"), a = String(t.getFullYear()).slice(-2);
+  return `${i}.${s}.${a}`;
 }
-function A({ dateValue: s, startTime: e, endTime: t }) {
-  const i = y(s), a = (e == null ? void 0 : e.trim()) || "", n = (t == null ? void 0 : t.trim()) || "";
-  return i ? a && n ? `${i}｜${a}-${n}` : a ? `${i}｜${a}` : i : a && n ? `${a}-${n}` : a || "";
+function _({ dateValue: o, startTime: e, endTime: t }) {
+  const i = x(o), s = (e == null ? void 0 : e.trim()) || "", a = (t == null ? void 0 : t.trim()) || "";
+  return i ? s && a ? `${i}｜${s}-${a}` : s ? `${i}｜${s}` : i : s && a ? `${s}-${a}` : s || "";
 }
-function u(s, e = h.MAX_FILENAME_LENGTH) {
-  return s ? s.replace(/[^a-zA-Z0-9\s-]/g, "").replace(/\s+/g, "-").toLowerCase().substring(0, e) : "";
+function v(o, e = g.MAX_FILENAME_LENGTH) {
+  return o ? o.replace(/[^a-zA-Z0-9\s-]/g, "").replace(/\s+/g, "-").toLowerCase().substring(0, e) : "";
 }
-function b({ titleLine1: s, dateValue: e, format: t }) {
+function A({ titleLine1: o, dateValue: e, format: t }) {
   let i = "";
   if (t === "1:1" ? i = "_square" : t === "obs-hd" && (i = "_obs-hd"), t === "obs-hd")
-    return s != null && s.trim() ? `${u(s, 40)}${i}.png` : `vers-libre-event${i}.png`;
-  let a = "";
+    return o != null && o.trim() ? `${v(o, 40)}${i}.png` : `vers-libre-event${i}.png`;
+  let s = "";
   if (e != null && e.trim()) {
-    const r = new Date(e);
-    if (!isNaN(r.getTime())) {
-      const o = r.getFullYear(), l = String(r.getMonth() + 1).padStart(2, "0"), c = String(r.getDate()).padStart(2, "0");
-      a = `${o}-${l}-${c}`;
+    const n = new Date(e);
+    if (!isNaN(n.getTime())) {
+      const r = n.getFullYear(), l = String(n.getMonth() + 1).padStart(2, "0"), h = String(n.getDate()).padStart(2, "0");
+      s = `${r}-${l}-${h}`;
     }
   }
-  const n = (s == null ? void 0 : s.trim()) || "";
-  return n && a ? `${u(n, 30)}_${a}${i}.png` : n ? `${u(n, 40)}${i}.png` : a ? `vers-libre-event_${a}${i}.png` : `vers-libre-event${i}.png`;
+  const a = (o == null ? void 0 : o.trim()) || "";
+  return a && s ? `${v(a, 30)}_${s}${i}.png` : a ? `${v(a, 40)}${i}.png` : s ? `vers-libre-event_${s}${i}.png` : `vers-libre-event${i}.png`;
 }
-function _(s = 30) {
+function P(o = 30) {
   const e = [];
   for (let t = 0; t < 24; t++)
-    for (let i = 0; i < 60; i += s) {
-      const a = String(t).padStart(2, "0"), n = String(i).padStart(2, "0");
-      e.push(`${a}:${n}`);
+    for (let i = 0; i < 60; i += o) {
+      const s = String(t).padStart(2, "0"), a = String(i).padStart(2, "0");
+      e.push(`${s}:${a}`);
     }
   return e;
 }
-class L {
+class R {
   constructor() {
     this.listeners = /* @__PURE__ */ new Map();
   }
@@ -416,15 +416,15 @@ class L {
   }
   off(e, t) {
     if (!this.listeners.has(e)) return;
-    const i = this.listeners.get(e), a = i.indexOf(t);
-    a > -1 && i.splice(a, 1);
+    const i = this.listeners.get(e), s = i.indexOf(t);
+    s > -1 && i.splice(s, 1);
   }
   emit(e, t) {
     this.listeners.has(e) && this.listeners.get(e).forEach((i) => {
       try {
         i(t);
-      } catch (a) {
-        console.error(`Error in event listener for "${e}":`, a);
+      } catch (s) {
+        console.error(`Error in event listener for "${e}":`, s);
       }
     });
   }
@@ -432,7 +432,7 @@ class L {
     e ? this.listeners.delete(e) : this.listeners.clear();
   }
 }
-class R extends L {
+class C extends R {
   /**
    * @param {HTMLElement} container - DOM element to mount editor
    * @param {Object} config - Configuration options
@@ -440,13 +440,13 @@ class R extends L {
   constructor(e, t = {}) {
     if (super(), !e || !(e instanceof HTMLElement))
       throw new Error("VersLibreEditor requires a valid DOM container element");
-    this.container = e, this.config = this.mergeConfig(t), this.state = new I(), this.elements = {}, this.cleanupFunctions = [], this.init();
+    this.container = e, this.config = this.mergeConfig(t), this.state = new E(), this.elements = {}, this.cleanupFunctions = [], this.canvas = null, this.ctx = null, this.image = null, this.imageScale = 1, this.imageOffsetX = 0, this.imageOffsetY = 0, this.isDragging = !1, this.lastMouseX = 0, this.lastMouseY = 0, this.currentAspectRatio = "4:5", this.CANVAS_WIDTH = p["4:5"].width, this.CANVAS_HEIGHT = p["4:5"].height, this.init();
   }
   /**
    * Merge user config with defaults
    */
   mergeConfig(e) {
-    var t, i, a, n, r, o, l, c, p, g, f;
+    var t, i, s, a, n, r, l, h, d, u, m;
     return {
       // Mode
       standalone: e.standalone ?? !0,
@@ -455,23 +455,23 @@ class R extends L {
       features: {
         upload: ((t = e.features) == null ? void 0 : t.upload) ?? !0,
         download: ((i = e.features) == null ? void 0 : i.download) ?? !0,
-        formats: ((a = e.features) == null ? void 0 : a.formats) ?? ["4:5", "9:16", "1:1", "obs-hd"],
-        heicSupport: ((n = e.features) == null ? void 0 : n.heicSupport) ?? !0
+        formats: ((s = e.features) == null ? void 0 : s.formats) ?? ["4:5", "9:16", "1:1", "obs-hd"],
+        heicSupport: ((a = e.features) == null ? void 0 : a.heicSupport) ?? !0
       },
       // Theme
       theme: e.theme || "default",
       // Callbacks
       callbacks: {
-        onSave: ((r = e.callbacks) == null ? void 0 : r.onSave) || null,
-        onExport: ((o = e.callbacks) == null ? void 0 : o.onExport) || null,
+        onSave: ((n = e.callbacks) == null ? void 0 : n.onSave) || null,
+        onExport: ((r = e.callbacks) == null ? void 0 : r.onExport) || null,
         onError: ((l = e.callbacks) == null ? void 0 : l.onError) || null,
-        onReady: ((c = e.callbacks) == null ? void 0 : c.onReady) || null
+        onReady: ((h = e.callbacks) == null ? void 0 : h.onReady) || null
       },
       // API
       api: {
-        endpoint: ((p = e.api) == null ? void 0 : p.endpoint) || "/api/editor",
-        saveProject: ((g = e.api) == null ? void 0 : g.saveProject) || "/api/projects",
-        uploadImage: ((f = e.api) == null ? void 0 : f.uploadImage) || "/api/upload"
+        endpoint: ((d = e.api) == null ? void 0 : d.endpoint) || "/api/editor",
+        saveProject: ((u = e.api) == null ? void 0 : u.saveProject) || "/api/projects",
+        uploadImage: ((m = e.api) == null ? void 0 : m.uploadImage) || "/api/upload"
       },
       // Initial data
       initialData: e.initialData || null,
@@ -483,7 +483,7 @@ class R extends L {
    */
   async init() {
     try {
-      this.container.classList.add("vers-libre-editor-scope"), this.config.theme && this.container.setAttribute("data-theme", this.config.theme), this.injectHTML(), this.cacheElements(), this.state.set("logoImage", await v.loadLogo()), this.bindEvents(), this.config.initialData && await this.loadProject(this.config.initialData), await this.initializeFontLoading(), this.emit("editor:ready", { config: this.config }), this.config.callbacks.onReady && this.config.callbacks.onReady(this);
+      this.container.classList.add("vers-libre-editor-scope"), this.config.theme && this.container.setAttribute("data-theme", this.config.theme), this.injectHTML(), this.cacheElements(), this.state.set("logoImage", await w.loadLogo()), this.bindEvents(), this.config.initialData && await this.loadProject(this.config.initialData), await this.initializeFontLoading(), this.emit("editor:ready", { config: this.config }), this.config.callbacks.onReady && this.config.callbacks.onReady(this);
     } catch (e) {
       this.handleError("Initialization failed", e);
     }
@@ -543,7 +543,7 @@ class R extends L {
                             <label for="aspectRatio">Format</label>
                             <select id="aspectRatio">
                                 ${this.config.features.formats.map((e) => {
-      const t = m[e];
+      const t = p[e];
       return `<option value="${e}">${t.name}</option>`;
     }).join("")}
                             </select>
@@ -605,9 +605,9 @@ class R extends L {
   populateTimeSelects() {
     const e = [];
     for (let i = 0; i < 24; i++)
-      for (let a = 0; a < 60; a += 30) {
-        const n = String(i).padStart(2, "0"), r = String(a).padStart(2, "0");
-        e.push(`${n}:${r}`);
+      for (let s = 0; s < 60; s += 30) {
+        const a = String(i).padStart(2, "0"), n = String(s).padStart(2, "0");
+        e.push(`${a}:${n}`);
       }
     const t = '<option value="">Select time</option>' + e.map((i) => `<option value="${i}">${i}</option>`).join("");
     this.elements.startTimeInput && (this.elements.startTimeInput.innerHTML = t), this.elements.endTimeInput && (this.elements.endTimeInput.innerHTML = t);
@@ -616,14 +616,185 @@ class R extends L {
    * Bind event listeners
    */
   bindEvents() {
-    this.elements.uploadArea && this.config.features.upload && (this.elements.uploadArea.addEventListener("click", () => this.elements.imageInput.click()), this.elements.uploadArea.addEventListener("dragover", this.handleDragOver.bind(this)), this.elements.uploadArea.addEventListener("dragleave", this.handleDragLeave.bind(this)), this.elements.uploadArea.addEventListener("drop", this.handleDrop.bind(this))), this.elements.imageInput && this.elements.imageInput.addEventListener("change", this.handleImageUpload.bind(this)), this.elements.downloadBtn && this.config.features.download && this.elements.downloadBtn.addEventListener("click", this.handleDownload.bind(this));
+    this.debouncedUpdatePreview = this.debounce(this.updatePreview.bind(this), g.DEBOUNCE_DELAY_MS), this.elements.uploadArea && this.config.features.upload && (this.elements.uploadArea.addEventListener("click", () => this.elements.imageInput.click()), this.elements.uploadArea.addEventListener("dragover", this.handleDragOver.bind(this)), this.elements.uploadArea.addEventListener("dragleave", this.handleDragLeave.bind(this)), this.elements.uploadArea.addEventListener("drop", this.handleDrop.bind(this))), this.elements.imageInput && this.elements.imageInput.addEventListener("change", this.handleImageUpload.bind(this)), this.elements.titleLine1 && this.elements.titleLine1.addEventListener("input", this.debouncedUpdatePreview), this.elements.titleLine2 && this.elements.titleLine2.addEventListener("input", this.debouncedUpdatePreview), this.elements.dateInput && this.elements.dateInput.addEventListener("input", this.debouncedUpdatePreview), this.elements.startTimeInput && this.elements.startTimeInput.addEventListener("change", this.updatePreview.bind(this)), this.elements.endTimeInput && this.elements.endTimeInput.addEventListener("change", this.updatePreview.bind(this)), this.elements.scaleSlider && this.elements.scaleSlider.addEventListener("input", () => {
+      this.updateScaleDisplay(), this.updatePreview();
+    }), this.elements.opacitySlider && this.elements.opacitySlider.addEventListener("input", () => {
+      this.updateOpacityDisplay(), this.updatePreview();
+    }), this.elements.aspectRatio && this.elements.aspectRatio.addEventListener("change", () => {
+      this.updateAspectRatio(), this.canvas && this.image && (this.createCanvas(), this.updatePreview());
+    }), this.elements.downloadBtn && this.config.features.download && this.elements.downloadBtn.addEventListener("click", this.handleDownload.bind(this));
+  }
+  /**
+   * Update aspect ratio from selector
+   */
+  updateAspectRatio() {
+    if (!this.elements.aspectRatio) return;
+    const e = this.elements.aspectRatio.value;
+    this.state.setFormat(e);
+    const t = p[e];
+    this.CANVAS_WIDTH = t.width, this.CANVAS_HEIGHT = t.height, this.currentAspectRatio = e;
+  }
+  /**
+   * Create canvas element
+   */
+  createCanvas() {
+    if (!this.elements.canvasArea) return;
+    this.elements.canvasArea.innerHTML = "", this.updateAspectRatio(), this.canvas = document.createElement("canvas"), this.canvas.id = "canvas", this.ctx = this.canvas.getContext("2d"), this.canvas.width = this.CANVAS_WIDTH, this.canvas.height = this.CANVAS_HEIGHT;
+    const t = window.innerWidth <= g.MOBILE_BREAKPOINT ? Math.min(400, window.innerWidth - 40) : 500;
+    this.canvas.style.width = t + "px", this.canvas.style.maxWidth = "100%", this.canvas.style.height = "auto";
+    const i = document.createElement("div");
+    i.className = "canvas-wrapper", i.style.cssText = `
+            display: inline-block;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 8px;
+            margin: 20px 0;
+            max-width: 100%;
+            position: relative;
+        `, i.appendChild(this.canvas), this.elements.canvasArea.appendChild(i), this.bindCanvasEvents();
+  }
+  /**
+   * Bind canvas drag events
+   */
+  bindCanvasEvents() {
+    this.canvas && (this.canvas.addEventListener("mousedown", this.handleMouseDown.bind(this)), this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this)), this.canvas.addEventListener("mouseup", this.handleMouseUp.bind(this)), this.canvas.addEventListener("mouseleave", this.handleMouseUp.bind(this)), this.canvas.addEventListener("touchstart", this.handleTouchStart.bind(this), { passive: !0 }), this.canvas.addEventListener("touchmove", this.handleTouchMove.bind(this), { passive: !0 }), this.canvas.addEventListener("touchend", this.handleTouchEnd.bind(this)), this.canvas.style.cursor = "grab", this.canvas.setAttribute("role", "img"), this.canvas.setAttribute("aria-label", "Event image preview - drag to reposition"));
+  }
+  /**
+   * Update canvas preview
+   */
+  updatePreview() {
+    !this.canvas || !this.image || (this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height), this.drawBackgroundImage(), this.drawBottomGradient(), this.drawVersLibreLogo(), this.drawMainText(), this.drawDateTime());
+  }
+  /**
+   * Draw background image with transforms
+   */
+  drawBackgroundImage() {
+    if (!this.image) return;
+    const e = this.canvas.width, t = this.canvas.height, i = e / t, s = this.image.width / this.image.height;
+    let a, n, r, l;
+    s > i ? (n = t, a = n * s, r = (e - a) / 2, l = 0) : (a = e, n = a / s, r = 0, l = (t - n) / 2);
+    const h = a * this.imageScale, d = n * this.imageScale, u = (a - h) / 2, m = (n - d) / 2;
+    r += this.imageOffsetX + u, l += this.imageOffsetY + m, this.ctx.drawImage(this.image, r, l, h, d);
+  }
+  /**
+   * Draw bottom gradient overlay
+   */
+  drawBottomGradient() {
+    const e = this.canvas.width, t = this.canvas.height, i = t * 0.3, s = this.elements.opacitySlider ? this.elements.opacitySlider.value / 100 : 0.3, a = this.ctx.createLinearGradient(0, t - i, 0, t);
+    a.addColorStop(0, "rgba(0, 0, 0, 0)"), a.addColorStop(1, `rgba(0, 0, 0, ${s})`), this.ctx.fillStyle = a, this.ctx.fillRect(0, t - i, e, i);
+  }
+  /**
+   * Draw Vers Libre logo
+   */
+  drawVersLibreLogo() {
+    const e = this.state.get("logoImage");
+    if (!e || !e.complete) return;
+    const t = this.canvas.width, i = this.canvas.height, a = t * 0.15, n = a / e.width * e.height;
+    let r, l;
+    this.currentAspectRatio === "obs-hd" ? (r = t - t * 0.05 - a, l = i * 0.05) : (r = t * 0.05, l = i * 0.05), this.ctx.drawImage(e, r, l, a, n);
+  }
+  /**
+   * Draw main text
+   */
+  drawMainText() {
+    var h, d;
+    const e = ((h = this.elements.titleLine1) == null ? void 0 : h.value.toUpperCase()) || "", t = ((d = this.elements.titleLine2) == null ? void 0 : d.value.toUpperCase()) || "";
+    if (!e && !t) return;
+    const i = this.canvas.width, s = this.canvas.height, a = s * 0.055, n = i * 0.05, r = s * 0.81, l = s * 0.87;
+    this.ctx.font = `${a}px "Radial", sans-serif`, this.ctx.textAlign = "left", this.ctx.textBaseline = "bottom", this.ctx.fillStyle = "white", e && this.ctx.fillText(e, n, r), t && this.ctx.fillText(t, n, l);
+  }
+  /**
+   * Draw date/time text
+   */
+  drawDateTime() {
+    var d, u, m;
+    if (this.currentAspectRatio === "obs-hd") return;
+    const e = ((d = this.elements.dateInput) == null ? void 0 : d.value) || "", t = ((u = this.elements.startTimeInput) == null ? void 0 : u.value) || "", i = ((m = this.elements.endTimeInput) == null ? void 0 : m.value) || "";
+    let s = "";
+    if (e) {
+      const f = new Date(e);
+      if (!isNaN(f.getTime())) {
+        const I = String(f.getDate()).padStart(2, "0"), S = String(f.getMonth() + 1).padStart(2, "0"), T = String(f.getFullYear()).slice(-2);
+        s = `${I}.${S}.${T}`;
+      }
+    }
+    if (s && t && i ? s += `｜${t}-${i}` : t && i && (s = `${t}-${i}`), !s) return;
+    const a = this.canvas.width, n = this.canvas.height, r = n * 0.025, l = a * 0.05, h = n * 0.94;
+    this.ctx.font = `${r}px "Radial", sans-serif`, this.ctx.fillStyle = "white", this.ctx.textAlign = "left", this.ctx.textBaseline = "bottom", this.ctx.fillText(s.toUpperCase(), l, h);
+  }
+  /**
+   * Update scale display
+   */
+  updateScaleDisplay() {
+    if (this.elements.scaleValue && this.elements.scaleSlider) {
+      const e = this.elements.scaleSlider.value;
+      this.elements.scaleValue.textContent = e + "%", this.imageScale = e / 100;
+    }
+  }
+  /**
+   * Update opacity display
+   */
+  updateOpacityDisplay() {
+    this.elements.opacityValue && this.elements.opacitySlider && (this.elements.opacityValue.textContent = this.elements.opacitySlider.value + "%");
+  }
+  /**
+   * Mouse drag handlers
+   */
+  getMousePos(e) {
+    const t = this.canvas.getBoundingClientRect(), i = this.canvas.width / t.width, s = this.canvas.height / t.height;
+    return {
+      x: (e.clientX - t.left) * i,
+      y: (e.clientY - t.top) * s
+    };
+  }
+  handleMouseDown(e) {
+    if (!this.image) return;
+    const t = this.getMousePos(e);
+    this.isDragging = !0, this.lastMouseX = t.x, this.lastMouseY = t.y, this.canvas.style.cursor = "grabbing", e.preventDefault();
+  }
+  handleMouseMove(e) {
+    if (!this.isDragging || !this.image) return;
+    const t = this.getMousePos(e), i = t.x - this.lastMouseX, s = t.y - this.lastMouseY;
+    this.imageOffsetX += i, this.imageOffsetY += s, this.lastMouseX = t.x, this.lastMouseY = t.y, this.updatePreview(), e.preventDefault();
+  }
+  handleMouseUp(e) {
+    this.isDragging = !1, this.canvas && (this.canvas.style.cursor = "grab");
+  }
+  /**
+   * Touch drag handlers
+   */
+  handleTouchStart(e) {
+    if (!this.image || e.touches.length !== 1) return;
+    const t = e.touches[0], i = this.canvas.getBoundingClientRect(), s = this.canvas.width / i.width, a = this.canvas.height / i.height;
+    this.isDragging = !0, this.lastMouseX = (t.clientX - i.left) * s, this.lastMouseY = (t.clientY - i.top) * a;
+  }
+  handleTouchMove(e) {
+    if (!this.isDragging || !this.image || e.touches.length !== 1) return;
+    const t = e.touches[0], i = this.canvas.getBoundingClientRect(), s = this.canvas.width / i.width, a = this.canvas.height / i.height, n = (t.clientX - i.left) * s, r = (t.clientY - i.top) * a, l = n - this.lastMouseX, h = r - this.lastMouseY;
+    this.imageOffsetX += l, this.imageOffsetY += h, this.lastMouseX = n, this.lastMouseY = r, this.updatePreview();
+  }
+  handleTouchEnd(e) {
+    this.isDragging = !1;
+  }
+  /**
+   * Debounce utility
+   */
+  debounce(e, t) {
+    let i;
+    return function(...a) {
+      const n = () => {
+        clearTimeout(i), e.apply(this, a);
+      };
+      clearTimeout(i), i = setTimeout(n, t);
+    };
   }
   /**
    * Handle image upload
    */
   async handleImageUpload(e) {
     const t = e.target.files[0];
-    t && await v.loadImage(t, {
+    t && await w.loadImage(t, {
       onProgress: (i) => {
         this.emit("image:loading", { message: i });
       },
@@ -631,7 +802,7 @@ class R extends L {
         this.handleError("Image upload failed", i);
       },
       onSuccess: (i) => {
-        this.state.update({ image: i }), this.emit("image:uploaded", {
+        this.image = i, this.state.update({ image: i }), this.canvas || this.createCanvas(), this.imageOffsetX = 0, this.imageOffsetY = 0, this.imageScale = 1, this.updatePreview(), this.emit("image:uploaded", {
           size: t.size,
           name: t.name,
           dimensions: { width: i.width, height: i.height }
@@ -640,19 +811,52 @@ class R extends L {
     });
   }
   /**
-   * Handle download
+   * Handle download - also accessible as exportImage()
    */
   handleDownload() {
+    this.exportImage();
+  }
+  /**
+   * Export canvas as PNG
+   */
+  exportImage() {
+    var e, t;
+    if (!this.canvas) {
+      this.handleError("Cannot export", "No image loaded");
+      return;
+    }
     this.emit("image:export:start");
-    const e = {
-      format: this.state.get("currentFormat"),
-      filename: b({
-        titleLine1: this.elements.titleLine1.value,
-        dateValue: this.elements.dateInput.value,
-        format: this.state.get("currentFormat")
-      })
-    };
-    this.emit("image:exported", e), this.config.callbacks.onExport && this.config.callbacks.onExport(e);
+    try {
+      const i = A({
+        titleLine1: ((e = this.elements.titleLine1) == null ? void 0 : e.value) || "",
+        dateValue: ((t = this.elements.dateInput) == null ? void 0 : t.value) || "",
+        format: this.currentAspectRatio
+      });
+      this.canvas.toBlob((s) => {
+        if (!s) {
+          this.handleError("Export failed", "Could not generate image");
+          return;
+        }
+        const a = {
+          format: this.currentAspectRatio,
+          filename: i,
+          blob: s,
+          dataURL: URL.createObjectURL(s)
+        };
+        this.emit("image:exported", a), this.config.callbacks.onExport && this.config.callbacks.onExport(a), this.config.standalone && this.downloadBlob(s, i);
+      }, "image/png", 1);
+    } catch (i) {
+      this.handleError("Export failed", i);
+    }
+  }
+  /**
+   * Download blob as file
+   */
+  downloadBlob(e, t) {
+    const i = URL.createObjectURL(e), s = document.createElement("a");
+    s.href = i, s.download = t;
+    const a = /iPad|iPhone|iPod/.test(navigator.userAgent), n = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+    (a || n) && window.open(i) || (document.body.appendChild(s), s.click(), document.body.removeChild(s)), setTimeout(() => URL.revokeObjectURL(i), 100);
   }
   /**
    * Drag and drop handlers
@@ -693,7 +897,7 @@ class R extends L {
    * Get current project data
    */
   getProjectData() {
-    var e, t, i, a, n;
+    var e, t, i, s, a;
     return {
       format: this.state.get("currentFormat"),
       image: {
@@ -705,8 +909,8 @@ class R extends L {
         line1: ((e = this.elements.titleLine1) == null ? void 0 : e.value) || "",
         line2: ((t = this.elements.titleLine2) == null ? void 0 : t.value) || "",
         date: ((i = this.elements.dateInput) == null ? void 0 : i.value) || "",
-        startTime: ((a = this.elements.startTimeInput) == null ? void 0 : a.value) || "",
-        endTime: ((n = this.elements.endTimeInput) == null ? void 0 : n.value) || ""
+        startTime: ((s = this.elements.startTimeInput) == null ? void 0 : s.value) || "",
+        endTime: ((a = this.elements.endTimeInput) == null ? void 0 : a.value) || ""
       },
       settings: {
         gradientOpacity: this.state.get("gradientOpacity")
@@ -732,19 +936,19 @@ class R extends L {
   }
 }
 export {
-  h as CONSTANTS,
-  I as EditorState,
-  w as FONTS,
-  m as FORMAT_CONFIGS,
-  v as ImageService,
-  d as UI_TEXT,
-  R as VersLibreEditorComponent,
-  y as formatDate,
-  A as formatDateTime,
-  b as generateFilename,
-  _ as generateTimeOptions,
-  E as isHeicFile,
-  T as validateDate,
-  S as validateFile
+  g as CONSTANTS,
+  E as EditorState,
+  M as FONTS,
+  p as FORMAT_CONFIGS,
+  w as ImageService,
+  c as UI_TEXT,
+  C as VersLibreEditorComponent,
+  x as formatDate,
+  _ as formatDateTime,
+  A as generateFilename,
+  P as generateTimeOptions,
+  L as isHeicFile,
+  b as validateDate,
+  y as validateFile
 };
 //# sourceMappingURL=vers-libre-editor.es.js.map
